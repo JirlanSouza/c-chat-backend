@@ -1,0 +1,24 @@
+{
+  "name": "c-chat-backend",
+  "version": "1.0.0",
+  "description": "Real time chat application rest and websocket api.",
+  "main": "main.js",
+  "repository": "git@github.com:JirlanSouza/c-chat-backend.git",
+  "author": "Jirlan Souza <jirlansouza08@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.1.1",
+    "@types/node": "^18.7.23",
+    "jest": "^29.1.2",
+    "ts-jest": "^29.0.3",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "jsonwebtoken": "^8.5.1"
+  }
+}
