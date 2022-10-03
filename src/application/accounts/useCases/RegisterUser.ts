@@ -15,8 +15,7 @@ export class RegisterUserUseCase {
       throw new AppError("user already exists!");
     }
 
-    const passwordHash = await hash(password, 8);
-    const user = User.create(name, email, passwordHash);
+    const user = await User.create(name, email, password, "");
 
     if (!User) {
       throw new AppError("Invalid user arguments");
