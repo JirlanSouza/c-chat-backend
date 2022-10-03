@@ -1,8 +1,11 @@
+import { config } from "dotenv";
 import { IRegisterUserDTO } from "@application/accounts/dtos/IRegisterUserDTO";
 import { AuthenticateUserUseCase } from "@application/accounts/useCases/AuthenticateUser";
 import { RegisterUserUseCase } from "@application/accounts/useCases/RegisterUser";
-import { UsersInMemoryRepository } from "@infra/database/repositories/inMemory/UsersInMemoryRepository";
+import { UsersInMemoryRepository } from "@infra/database/repositories/users/UsersInMemoryRepository";
 import { AppError } from "@shared/errors/AppError";
+
+config();
 
 let usersInMemoryRepository: UsersInMemoryRepository;
 let authenticateUserUseCase: AuthenticateUserUseCase;
@@ -31,6 +34,7 @@ describe("Authenticate User", () => {
     });
 
     expect(authenticationData).toHaveProperty("token");
+    expect(authenticationData.user.email).toBe("newuser@cchat.com");
   });
 
   it("Should not be able to authenticate an nonexistent user", async () => {
