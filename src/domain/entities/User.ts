@@ -1,4 +1,5 @@
-import { randomUUID } from "node:crypto";
+import { toHash } from "@shared/utils/hash";
+import { generateId } from "@shared/utils/id";
 
 export class User {
   id: string;
@@ -7,9 +8,10 @@ export class User {
   password: string;
   avatarUrl: string;
 
-  static create(name: string, email: string, password: string) {
-    const id = randomUUID();
-    return new User(id, name, email, password, "");
+  static async create(name: string, email: string, password: string, avatarUrl: string) {
+    const id = generateId();
+    const passwordHash = await toHash(password);
+    return new User(id, name, email, passwordHash, avatarUrl);
   }
 
   static from(id: string, name: string, email: string, password: string, avatarUrl: string) {
