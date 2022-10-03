@@ -1,10 +1,13 @@
 import { RegisterUserUseCase } from "@application/accounts/useCases/RegisterUser";
+import { IHttpServer } from "@infra/http/server/IHttpServer";
 import { Request, Response } from "../types";
 
 export class RegisterUserController {
-  constructor(private readonly registerUserUseCase: RegisterUserUseCase) {}
+  constructor(httpServer: IHttpServer, private readonly registerUserUseCase: RegisterUserUseCase) {
+    httpServer.on("post", "/users", this.handle.bind(this));
+  }
 
-  async handle(request: Request, response: Response): Promise<Response> {
+  private async handle(request: Request): Promise<Response> {
     const { name, email, password } = request.body;
 
     await this.registerUserUseCase.execute({

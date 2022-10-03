@@ -1,10 +1,13 @@
 import { Request, Response } from "../types";
 import { AuthenticateUserUseCase } from "@application/accounts/useCases/AuthenticateUser";
+import { IHttpServer } from "@infra/http/server/IHttpServer";
 
 export class AuthenticateUserController {
-  constructor(private readonly authenticateUserUseCase: AuthenticateUserUseCase) {}
+  constructor(httpServer: IHttpServer, private readonly authenticateUserUseCase: AuthenticateUserUseCase) {
+    httpServer.on("post", "/auth", this.handle.bind(this));
+  }
 
-  async handle(request: Request, response: Response): Promise<Response> {
+  private async handle(request: Request): Promise<Response> {
     const { email, password } = request.body;
 
     const authenticationData = await this.authenticateUserUseCase.execute({
