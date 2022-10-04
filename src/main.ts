@@ -27,5 +27,5 @@ import { AuthenticateUserController } from "@infra/http/controllers/accounts/Aut
 
   expressApp.use(errorVerification);
   const port = parseInt(process.env.PORT) || 8080;
-  httpServer.listener(port, () => console.info(`Server is runing in %{port} port!`));
+  httpServer.listener(port, () => console.info(`Server is runing in ${port} port!`));
 })();
