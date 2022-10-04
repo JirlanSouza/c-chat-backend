@@ -26,5 +26,6 @@ import { AuthenticateUserController } from "@infra/http/controllers/accounts/Aut
   new AuthenticateUserController(httpServer, authenticateUserUseCase);
 
   expressApp.use(errorVerification);
-  httpServer.listener(8080, () => console.info("Server is runing in 8080 port!"));
+  const port = process.env.PORT || 8080;
+  httpServer.listener(port, () => console.info(`Server is runing in %{port} port!`));
 })();
