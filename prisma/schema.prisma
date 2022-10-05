@@ -14,3 +14,22 @@ model User {
   password  String
   avatarurl String
 }
+
+model Room {
+  id    String @id @map("_id") @db.ObjectId
+  title String
+}
+
+model RoomUser {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  roomId String
+  userId String
+}
+
+model RoomMessage {
+  id        String   @id @map("_id") @db.ObjectId
+  roomId    String
+  userId    String
+  text      String
+  timestamp DateTime
+}
