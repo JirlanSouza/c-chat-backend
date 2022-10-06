@@ -18,6 +18,8 @@ import { NewMessageEventHandler } from "@infra/webSocket/events/handlers/newMess
 import { SocketIoEventGatway } from "@infra/webSocket/events/eventGatway";
 import { logger } from "@infra/http/midllewares/logger";
 import { PrismaChatRepository } from "@infra/database/repositories/chat/PrismaChatRepository";
+import { EnsureAuthenticated } from "@infra/webSocket/middlewares/ensureAuthenticated";
+import { VerifyAuthenticationUseCase } from "@application/accounts/useCases/VerifyAuthentication";
 
 (async () => {
   config();
@@ -30,23 +32,25 @@ import { PrismaChatRepository } from "@infra/database/repositories/chat/PrismaCh
   const httpServer = createServer(expressApp);
   const socketIo = new Server(httpServer, {
     cors: {
-      origin: "*",
+      origin: process.env.CORS_ORIGIN,
       methods: ["GET", "POST"],
     },
   });
-
   const expressHttpServer = new ExpressHttpServer(expressApp);
+
   const usersRepository = new PrismaUsersrepository();
+  const chatRepository = new PrismaChatRepository();
+  const verifyAuthentication = new VerifyAuthenticationUseCase(usersRepository);
+  const ensureAuthenticated = new EnsureAuthenticated(verifyAuthentication);
+
+  socketIo.use(ensureAuthenticated.handler.bind(ensureAuthenticated));
+  const socketIoEventEmitterGatway = new SocketIoEventGatway(socketIo);
+
   const registerUserUsecase = new RegisterUserUseCase(usersRepository);
-
   const authenticateUserUseCase = new AuthenticateUserUseCase(usersRepository);
-
   new RegisterUserController(expressHttpServer, registerUserUsecase);
   new AuthenticateUserController(expressHttpServer, authenticateUserUseCase);
 
-  const socketIoEventEmitterGatway = new SocketIoEventGatway(socketIo);
-
-  const chatRepository = new PrismaChatRepository();
   const newMessageUseCase = new NewMessageUseCase(chatRepository, usersRepository);
   new NewMessageEventHandler(socketIoEventEmitterGatway, newMessageUseCase);
 
