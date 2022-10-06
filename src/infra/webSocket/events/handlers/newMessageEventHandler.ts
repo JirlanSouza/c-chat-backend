@@ -2,7 +2,7 @@ import { NewMessageUseCase } from "@application/chat/useCases/NewMessage";
 import { EventEmitterGatway } from "../EventEmitterGatway";
 import { EventHandlerOut } from "./types";
 
-type NewMessageEventData = { userId: string; text: string };
+type NewMessageEventData = { roomId; userId: string; text: string };
 
 export class NewMessageEventHandler {
   private listenerEventName = "NEW_MESSAGE";
@@ -13,8 +13,8 @@ export class NewMessageEventHandler {
   }
 
   private async handler(eventData: NewMessageEventData): Promise<EventHandlerOut> {
-    const { userId, text } = eventData;
-    const newMessageresult = await this.newMessageUsecase.execute({ userId, text });
+    const { roomId, userId, text } = eventData;
+    const newMessageresult = await this.newMessageUsecase.execute({ roomId, userId, text });
 
     return {
       emitAll: true,

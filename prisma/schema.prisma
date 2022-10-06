@@ -17,7 +17,7 @@ model User {
 
 model Room {
   id    String @id @map("_id") @db.ObjectId
-  title String
+  title String @unique
 }
 
 model RoomUser {
@@ -27,9 +27,9 @@ model RoomUser {
 }
 
 model RoomMessage {
-  id        String   @id @map("_id") @db.ObjectId
-  roomId    String
-  userId    String
-  text      String
-  timestamp DateTime
+  id      String   @id @map("_id") @db.ObjectId
+  roomId  String
+  userId  String
+  text    String
+  created DateTime
 }

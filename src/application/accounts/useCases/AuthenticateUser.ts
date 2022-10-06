@@ -2,11 +2,11 @@ import { compare } from "bcrypt";
 import { sign } from "jsonwebtoken";
 
 import { IAuthenticateInDTO, IAuthenticateOutDTO } from "@application/accounts/dtos/IAuthenticateDTO";
-import { IUsersRepository } from "@application/accounts/repositories/IUsersRepository";
+import { UsersRepository } from "@application/accounts/repositories/UsersRepository";
 import { AppError } from "@shared/errors/AppError";
 
 export class AuthenticateUserUseCase {
-  constructor(private usersRepository: IUsersRepository) {}
+  constructor(private usersRepository: UsersRepository) {}
 
   async execute({ email, password }: IAuthenticateInDTO): Promise<IAuthenticateOutDTO> {
     const user = await this.usersRepository.findByEmail(email);

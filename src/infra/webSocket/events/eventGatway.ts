@@ -1,24 +1,20 @@
 import { Server, Socket } from "socket.io";
-import { EventHandler } from "./handlers/types";
 
+import { EventHandler } from "./handlers/types";
 import { EventEmitterGatway } from "./EventEmitterGatway";
+import { AppEventError } from "@shared/errors/AppEventError";
 import { Logger } from "@shared/logger";
 
 type ConnectedUsers = Map<string, string>;
+const APP_ERROR_EVENT = "ERROR";
 
 export class SocketIoEventGatway implements EventEmitterGatway {
   private connectedusers: ConnectedUsers;
   private subscribers: Map<string, EventHandler>;
-  private connectEventSubscribers: Map<string, EventHandler>;
-  private disconnectEventSubscribers: Map<string, EventHandler>;
-  private errorEventSubscribers: Map<string, EventHandler>;
 
   constructor(private socket: Server) {
     this.connectedusers = new Map();
     this.subscribers = new Map();
-    this.connectEventSubscribers = new Map();
-    this.disconnectEventSubscribers = new Map();
-    this.errorEventSubscribers = new Map();
   }
 
   async onEvents() {
@@ -31,12 +27,12 @@ export class SocketIoEventGatway implements EventEmitterGatway {
   }
 
   async userConnected(connection: Socket): Promise<void> {
-    Logger.info("NEW WEBSOCKET CONNECTION ID :", connection.id);
+    Logger.info("NEW WEBSOCKET CONNECTION WITH USER_ID :", connection.handshake["userId"]);
 
     connection.on("disconnecting", this.userDisconnected.bind(this));
 
     for (let [event] of this.subscribers) {
-      connection.on(event, ((eventData) => this.onMessage(event, eventData)).bind(this));
+      connection.on(event, ((eventData) => this.onMessage(connection.id, event, eventData)).bind(this));
     }
   }
 
@@ -44,12 +40,24 @@ export class SocketIoEventGatway implements EventEmitterGatway {
     console.log(eventData);
   }
 
-  async onMessage(eventName: string, message: any): Promise<void> {
+  async onMessage(connetionId: string, eventName: string, message: any): Promise<void> {
     const handler = this.subscribers.get(eventName);
-    const eventHandlerResult = await handler(message);
 
-    if (eventHandlerResult.emitAll) {
-      this.socket.emit(eventHandlerResult.emitEventName, eventHandlerResult.data);
+    try {
+      const eventHandlerResult = await handler(message);
+
+      if (eventHandlerResult.emitAll) {
+        this.socket.emit(eventHandlerResult.emitEventName, eventHandlerResult.data);
+      }
+    } catch (err) {
+      let errorMessage = "Inexpected server error!";
+      if (err instanceof AppEventError) {
+        errorMessage = err.message;
+      }
+
+      const [socket] = await this.socket.in(connetionId).fetchSockets();
+      socket.emit(APP_ERROR_EVENT, errorMessage);
+      Logger.error(err.message);
     }
   }
 
