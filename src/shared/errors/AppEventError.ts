@@ -1,3 +1,5 @@
-export class AppEventError {
-  constructor(readonly message: string, readonly userId: string) {}
+export class AppEventError extends Error {
+  constructor(readonly message: string, readonly userId: string) {
+    super(message);
+  }
 }
