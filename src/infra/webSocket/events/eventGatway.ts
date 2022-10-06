@@ -27,7 +27,7 @@ export class SocketIoEventGatway implements EventEmitterGatway {
   }
 
   async userConnected(connection: Socket): Promise<void> {
-    Logger.info("NEW WEBSOCKET CONNECTION ID :", connection.id);
+    Logger.info("NEW WEBSOCKET CONNECTION WITH USER_ID :", connection.handshake["userId"]);
 
     connection.on("disconnecting", this.userDisconnected.bind(this));
 
