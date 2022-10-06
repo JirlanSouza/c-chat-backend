@@ -50,6 +50,7 @@ import { logger } from "@infra/http/midllewares/logger";
 
   socketIoEventEmitterGatway.onEvents();
   expressApp.use(errorVerification);
+  
   const port = parseInt(process.env.PORT) || 8082;
   httpServer.listen(port, () => console.info(`Server is runing in ${port} port!`));
 })();
