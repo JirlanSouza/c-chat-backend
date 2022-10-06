@@ -1,4 +1,4 @@
-import { UsersRepository } from "@application/accounts/repositories/IUsersRepository";
+import { UsersRepository } from "@application/accounts/repositories/UsersRepository";
 import { ChatMessage } from "@domain/entities/ChatMessage";
 import { NewMessageInDto, NewMessageOutDto } from "../dtos/NewMessageTDO";
 import { ChatRepository } from "../repositories/ChatRepository";
