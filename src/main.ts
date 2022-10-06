@@ -6,7 +6,7 @@ import { Server } from "socket.io";
 import { config } from "dotenv";
 
 import { RegisterUserUseCase } from "@application/accounts/useCases/RegisterUser";
-import { PrismaUsersrepository } from "@infra/database/repositories/users/PrismausersRepository";
+import { PrismaUsersrepository } from "@infra/database/repositories/users/PrismaUsersRepository";
 import { RegisterUserController } from "@infra/http/controllers/accounts/RegisterUserController";
 import { ExpressHttpServer } from "@infra/http/server/ExpressHttpServer";
 import { Db } from "@infra/database/conection";
@@ -17,6 +17,7 @@ import { NewMessageUseCase } from "@application/chat/useCases/NewMessage";
 import { NewMessageEventHandler } from "@infra/webSocket/events/handlers/newMessageEventHandler";
 import { SocketIoEventGatway } from "@infra/webSocket/events/eventGatway";
 import { logger } from "@infra/http/midllewares/logger";
+import { PrismaChatRepository } from "@infra/database/repositories/chat/PrismaChatRepository";
 
 (async () => {
   config();
@@ -45,12 +46,13 @@ import { logger } from "@infra/http/midllewares/logger";
 
   const socketIoEventEmitterGatway = new SocketIoEventGatway(socketIo);
 
-  const newMessageUseCase = new NewMessageUseCase();
+  const chatRepository = new PrismaChatRepository();
+  const newMessageUseCase = new NewMessageUseCase(chatRepository, usersRepository);
   new NewMessageEventHandler(socketIoEventEmitterGatway, newMessageUseCase);
 
   socketIoEventEmitterGatway.onEvents();
   expressApp.use(errorVerification);
-  
+
   const port = parseInt(process.env.PORT) || 8082;
   httpServer.listen(port, () => console.info(`Server is runing in ${port} port!`));
 })();
