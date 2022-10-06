@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 
-import { IUsersRepository } from "@application/accounts/repositories/IUsersRepository";
+import { UsersRepository } from "@application/accounts/repositories/UsersRepository";
 import { User } from "@domain/entities/User";
 
-export class PrismaUsersrepository implements IUsersRepository {
+export class PrismaUsersrepository implements UsersRepository {
   private static prisma = new PrismaClient();
 
   async save(user: User): Promise<void> {

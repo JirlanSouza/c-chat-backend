@@ -1,7 +1,7 @@
-import { IUsersRepository } from "@application/accounts/repositories/IUsersRepository";
+import { UsersRepository } from "@application/accounts/repositories/UsersRepository";
 import { User } from "@domain/entities/User";
 
-export class UsersInMemoryRepository implements IUsersRepository {
+export class UsersInMemoryRepository implements UsersRepository {
   private users: User[] = [];
 
   async save(user: User): Promise<void> {
