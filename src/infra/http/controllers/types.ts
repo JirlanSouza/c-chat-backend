@@ -1,6 +1,6 @@
 export interface Request {
-  query: Object;
-  params: Object;
+  query: Record<string, string>;
+  params: Record<string, string>;
   body: Record<string, any>;
 }
 
