@@ -1,7 +1,10 @@
-import { GetLastRoomMessagesInDto, GetLastRoomMessagesOutDto } from "../dtos/GetLastRoomMessagesDTO";
+import {
+  GetLastRoomMessagesInDto,
+  GetLastRoomMessagesOutDto,
+} from "../dtos/GetLastRoomMessagesDTO";
 import { ChatRepository } from "../repositories/ChatRepository";
 
-export class GetLastRoomMessages {
+export class GetLastRoomMessagesQuery {
   constructor(private readonly chatRepository: ChatRepository) {}
 
   async execute(queryData: GetLastRoomMessagesInDto): Promise<GetLastRoomMessagesOutDto> {
@@ -13,7 +16,11 @@ export class GetLastRoomMessages {
 
     const dateEnd = Date.now();
 
-    const messages = await this.chatRepository.getMessages(roomId, dateEnd, queryData.maxMessages);
+    const messages = await this.chatRepository.getMessages(
+      roomId,
+      dateEnd,
+      queryData.maxMessages || 50
+    );
 
     return { messages };
   }
