@@ -20,6 +20,8 @@ import { logger } from "@infra/http/midllewares/logger";
 import { PrismaChatRepository } from "@infra/database/repositories/chat/PrismaChatRepository";
 import { EnsureAuthenticated } from "@infra/webSocket/middlewares/ensureAuthenticated";
 import { VerifyAuthenticationUseCase } from "@application/accounts/useCases/VerifyAuthentication";
+import { GetLastRoomMessagesQuery } from "@application/chat/queries/GetLastRoomMessages";
+import { GetLastRoomMessagesController } from "@infra/http/controllers/chat/GetLastRoomMessages";
 
 (async () => {
   config();
@@ -50,6 +52,9 @@ import { VerifyAuthenticationUseCase } from "@application/accounts/useCases/Veri
   const authenticateUserUseCase = new AuthenticateUserUseCase(usersRepository);
   new RegisterUserController(expressHttpServer, registerUserUsecase);
   new AuthenticateUserController(expressHttpServer, authenticateUserUseCase);
+
+  const getLastRoomMessageQuery = new GetLastRoomMessagesQuery(chatRepository);
+  new GetLastRoomMessagesController(expressHttpServer, getLastRoomMessageQuery);
 
   const newMessageUseCase = new NewMessageUseCase(chatRepository, usersRepository);
   new NewMessageEventHandler(socketIoEventEmitterGatway, newMessageUseCase);
