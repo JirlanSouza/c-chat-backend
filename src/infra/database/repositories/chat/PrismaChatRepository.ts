@@ -39,10 +39,24 @@ export class PrismaChatRepository implements ChatRepository {
       where: { roomId },
     });
 
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: messages.map((message) => message.userId) } },
+    });
+
     return messages.map((message) => {
+      const user = users.find((user) => user.id === message.userId);
+      const { id, roomId, text, created } = message;
+
       return {
-        ...message,
-        created: message.created.toLocaleString("pt-br", { timeZone: "America/Sao_Paulo" }),
+        id,
+        roomId,
+        user: {
+          id: user.id,
+          name: user.name,
+          avatarUrl: user.avatarurl,
+        },
+        text,
+        created: created.toLocaleString("pt-br", { timeZone: "America/Sao_Paulo" }),
       };
     });
   }

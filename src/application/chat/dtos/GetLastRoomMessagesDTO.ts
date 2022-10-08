@@ -10,9 +10,15 @@ export interface GetLastRoomMessagesOutDto {
 export interface MessageDto {
   id: string;
   roomId: string;
-  userId: string;
+  user: User;
   text: string;
   created: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  avatarUrl: string;
 }
 
 export interface RoomDto {
