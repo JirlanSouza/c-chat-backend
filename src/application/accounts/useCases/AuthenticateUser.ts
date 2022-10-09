@@ -6,7 +6,7 @@ import { UsersRepository } from "@application/accounts/repositories/UsersReposit
 import { AppError } from "@shared/errors/AppError";
 
 export class AuthenticateUserUseCase {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute({ email, password }: IAuthenticateInDTO): Promise<IAuthenticateOutDTO> {
     const user = await this.usersRepository.findByEmail(email);

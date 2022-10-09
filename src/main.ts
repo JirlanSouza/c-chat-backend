@@ -24,6 +24,7 @@ import { GetLastRoomMessagesQuery } from "@application/chat/queries/GetLastRoomM
 import { GetLastRoomMessagesController } from "@infra/http/controllers/chat/GetLastRoomMessages";
 import { GetRoomListQuery } from "@application/chat/queries/GetRoomList";
 import { GetRoomLisController } from "@infra/http/controllers/chat/GetRoomList";
+import { Logger } from "@shared/logger";
 
 (async () => {
   config();
@@ -69,4 +70,6 @@ import { GetRoomLisController } from "@infra/http/controllers/chat/GetRoomList";
 
   const port = parseInt(process.env.PORT) || 8082;
   httpServer.listen(port, () => console.info(`Server is runing in ${port} port!`));
-})();
+})().catch((err) => {
+  Logger.error(err);
+});

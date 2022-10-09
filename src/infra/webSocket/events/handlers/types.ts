@@ -3,7 +3,7 @@ export interface EventHandlerOut {
   emitOne?: boolean;
   toUserId?: string;
   emitEventName?: string;
-  data?: any;
+  data?: unknown;
 }
 
-export type EventHandler = (eventData: any) => Promise<EventHandlerOut>;
+export type EventHandler = (eventData) => Promise<EventHandlerOut>;

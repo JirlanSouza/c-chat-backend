@@ -7,7 +7,7 @@ import { RoomDto, MessageDto } from "@application/chat/dtos/GetLastRoomMessagesD
 import { RoomDto as RoomWithLastMessageDatetimeDto } from "@application/chat/dtos/GetRoomListDTO";
 
 export class PrismaChatRepository implements ChatRepository {
-  private prisma = new PrismaClient();
+  private readonly prisma = new PrismaClient();
 
   async existsRoomById(id: string): Promise<boolean> {
     const room = await this.prisma.room.findUnique({ where: { id } });

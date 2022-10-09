@@ -1,4 +1,3 @@
-import { UsersRepository } from "@application/accounts/repositories/UsersRepository";
 import { GetRoomListInDto, GetRoomListOutDto } from "../dtos/GetRoomListDTO";
 import { ChatRepository } from "../repositories/ChatRepository";
 

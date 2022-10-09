@@ -2,13 +2,13 @@ import { NewMessageUseCase } from "@application/chat/useCases/NewMessage";
 import { EventEmitterGatway } from "../EventEmitterGatway";
 import { EventHandlerOut } from "./types";
 
-type NewMessageEventData = { roomId; userId: string; text: string };
+interface NewMessageEventData { roomId; userId: string; text: string }
 
 export class NewMessageEventHandler {
-  private listenerEventName = "NEW_MESSAGE";
-  private emitEventName = "NEW_MESSAGE";
+  private readonly listenerEventName = "NEW_MESSAGE";
+  private readonly emitEventName = "NEW_MESSAGE";
 
-  constructor(private eventEmitterGatway: EventEmitterGatway, private newMessageUsecase: NewMessageUseCase) {
+  constructor(private readonly eventEmitterGatway: EventEmitterGatway, private readonly newMessageUsecase: NewMessageUseCase) {
     this.eventEmitterGatway.subscribeEvent(this.listenerEventName, this.handler.bind(this));
   }
 

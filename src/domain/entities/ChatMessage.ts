@@ -13,11 +13,11 @@ export class ChatMessage {
     this.created = new Date();
   }
 
-  static from(id: string, userId: string, text: string) {
+  static from(id: string, userId: string, text: string): ChatMessage {
     return new ChatMessage(id, userId, text);
   }
 
-  static create(userId: string, text: string) {
+  static create(userId: string, text: string): ChatMessage {
     const id = generateId();
     return new ChatMessage(id, userId, text);
   }

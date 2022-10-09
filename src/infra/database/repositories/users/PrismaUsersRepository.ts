@@ -4,7 +4,7 @@ import { UsersRepository } from "@application/accounts/repositories/UsersReposit
 import { User } from "@domain/entities/User";
 
 export class PrismaUsersrepository implements UsersRepository {
-  private static prisma = new PrismaClient();
+  private static readonly prisma = new PrismaClient();
 
   async save(user: User): Promise<void> {
     await PrismaUsersrepository.prisma.user.create({

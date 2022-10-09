@@ -24,7 +24,7 @@ export class NewMessageUseCase {
     }
 
     const message = ChatMessage.create(data.userId, data.text);
-    this.chatRepository.saveMessage(data.roomId, message);
+    await this.chatRepository.saveMessage(data.roomId, message);
     return {
       id: message.id,
       roomId: data.roomId,

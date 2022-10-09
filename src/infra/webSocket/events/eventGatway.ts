@@ -9,38 +9,42 @@ type ConnectedUsers = Map<string, string>;
 const APP_ERROR_EVENT = "ERROR";
 
 export class SocketIoEventGatway implements EventEmitterGatway {
-  private connectedusers: ConnectedUsers;
-  private subscribers: Map<string, EventHandler>;
+  private readonly connectedusers: ConnectedUsers;
+  private readonly subscribers: Map<string, EventHandler>;
 
-  constructor(private socket: Server) {
+  constructor(private readonly socket: Server) {
     this.connectedusers = new Map();
     this.subscribers = new Map();
   }
 
-  async onEvents() {
+  onEvents(): void {
     this.socket.on("connection", this.userConnected.bind(this));
     this.socket.on("disconnecting", this.userDisconnected.bind(this));
   }
 
-  subscribeEvent(eventName: string, handler: EventHandler) {
+  subscribeEvent(eventName: string, handler: EventHandler): void {
     this.subscribers.set(eventName, handler);
   }
 
   async userConnected(connection: Socket): Promise<void> {
-    Logger.info("NEW WEBSOCKET CONNECTION WITH USER_ID :", connection.handshake["userId"]);
+    const { userId } = connection.handshake as unknown as { userId };
+    Logger.info("NEW WEBSOCKET CONNECTION WITH USER_ID :", userId);
 
     connection.on("disconnecting", this.userDisconnected.bind(this));
 
-    for (let [event] of this.subscribers) {
-      connection.on(event, ((eventData) => this.onMessage(connection.id, event, eventData)).bind(this));
+    for (const [event] of this.subscribers) {
+      connection.on(
+        event,
+        async (eventData) => await this.onMessage(connection.id, event, eventData)
+      );
     }
   }
 
-  async userDisconnected(eventData: any): Promise<void> {
+  async userDisconnected(eventData): Promise<void> {
     console.log(eventData);
   }
 
-  async onMessage(connetionId: string, eventName: string, message: any): Promise<void> {
+  async onMessage(connetionId: string, eventName: string, message): Promise<void> {
     const handler = this.subscribers.get(eventName);
 
     try {
@@ -61,7 +65,7 @@ export class SocketIoEventGatway implements EventEmitterGatway {
     }
   }
 
-  async addConnectionUser(socket: Socket, userId: string) {
+  addConnectionUser(socket: Socket, userId: string): void {
     this.connectedusers.set(userId, socket.id);
   }
 }
