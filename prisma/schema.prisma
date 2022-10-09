@@ -16,8 +16,8 @@ model User {
 }
 
 model Room {
-  id    String @id @map("_id") @db.ObjectId
-  title String @unique
+  id   String @id @map("_id") @db.ObjectId
+  name String @unique
 }
 
 model RoomUser {
