@@ -3,17 +3,19 @@ import { RoomUser } from "./RoomUser";
 
 export class Room {
   private readonly id: string;
-  private readonly title: string;
+  private readonly name: string;
+  private readonly avatarUrl: string;
   private users: RoomUser[];
   private messages: ChatMessage[];
 
-  private constructor(id: string, title: string) {
+  private constructor(id: string, name: string) {
     this.id = id;
-    this.title = title;
+    this.name = name;
+    this.avatarUrl = "";
   }
 
-  static from(id: string, title: string, users: RoomUser[], messages: ChatMessage[]): Room {
-    const room = new Room(id, title);
+  static from(id: string, name: string, users: RoomUser[], messages: ChatMessage[]): Room {
+    const room = new Room(id, name);
     room.addmanyUsers(users);
     room.addManyMessages(messages);
     return room;

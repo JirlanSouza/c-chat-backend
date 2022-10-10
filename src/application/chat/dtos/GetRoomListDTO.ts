@@ -9,5 +9,6 @@ export interface GetRoomListOutDto {
 export interface RoomDto {
   id: string;
   name: string;
+  avatarUrl: string;
   lastMessageDatetime: string;
 }
