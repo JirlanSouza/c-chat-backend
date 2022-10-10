@@ -6,7 +6,7 @@ import { Socket } from "socket.io";
 export class EnsureAuthenticated {
   constructor(private readonly verifyAuthentication: VerifyAuthenticationUseCase) {}
 
-  async handler(socket: Socket, next: (args?: any) => void): Promise<void> {
+  async handler(socket: Socket, next: (args?) => void): Promise<void> {
     const { token } = socket.handshake.auth;
     if (!token) {
       Logger.info(`Websocket connection id:${socket.id} has missing token!`);

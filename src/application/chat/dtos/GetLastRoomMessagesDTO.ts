@@ -23,5 +23,5 @@ export interface User {
 
 export interface RoomDto {
   id: string;
-  title: string;
+  name: string;
 }

@@ -3,35 +3,37 @@ import { RoomUser } from "./RoomUser";
 
 export class Room {
   private readonly id: string;
-  private title: string;
+  private readonly name: string;
+  private readonly avatarUrl: string;
   private users: RoomUser[];
   private messages: ChatMessage[];
 
-  private constructor(id: string, title: string) {
+  private constructor(id: string, name: string) {
     this.id = id;
-    this.title = title;
+    this.name = name;
+    this.avatarUrl = "";
   }
 
-  static from(id: string, title: string, users: RoomUser[], messages: ChatMessage[]) {
-    const room = new Room(id, title);
+  static from(id: string, name: string, users: RoomUser[], messages: ChatMessage[]): Room {
+    const room = new Room(id, name);
     room.addmanyUsers(users);
     room.addManyMessages(messages);
     return room;
   }
 
-  addUser(user: RoomUser) {
+  addUser(user: RoomUser): void {
     this.users.push(user);
   }
 
-  addmanyUsers(users: RoomUser[]) {
+  addmanyUsers(users: RoomUser[]): void {
     this.users = [...this.users, ...users];
   }
 
-  addMessage(message: ChatMessage) {
+  addMessage(message: ChatMessage): void {
     this.messages.push(message);
   }
 
-  addManyMessages(messages: ChatMessage[]) {
+  addManyMessages(messages: ChatMessage[]): void {
     this.messages = [...this.messages, ...messages];
   }
 }

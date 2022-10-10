@@ -2,7 +2,7 @@ import { UsersRepository } from "@application/accounts/repositories/UsersReposit
 import { User } from "@domain/entities/User";
 
 export class UsersInMemoryRepository implements UsersRepository {
-  private users: User[] = [];
+  private readonly users: User[] = [];
 
   async save(user: User): Promise<void> {
     this.users.push(user);

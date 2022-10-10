@@ -1,12 +1,10 @@
-import { hash } from "bcrypt";
-
 import { AppError } from "@shared/errors/AppError";
 import { IRegisterUserDTO } from "@application/accounts/dtos/IRegisterUserDTO";
 import { UsersRepository } from "@application/accounts/repositories/UsersRepository";
 import { User } from "@domain/entities/User";
 
 export class RegisterUserUseCase {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute({ name, email, password }: IRegisterUserDTO): Promise<void> {
     const existUser = await this.usersRepository.findByEmail(email);

@@ -10,7 +10,7 @@ export class GetLastRoomMessagesQuery {
   async execute(queryData: GetLastRoomMessagesInDto): Promise<GetLastRoomMessagesOutDto> {
     let roomId = queryData.roomId;
     if (!queryData.roomId) {
-      const defaultRoom = await this.chatRepository.getRoomByTitle("Geral");
+      const defaultRoom = await this.chatRepository.getRoomByName("Geral");
       roomId = defaultRoom.id;
     }
 

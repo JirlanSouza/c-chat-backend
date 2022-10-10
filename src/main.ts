@@ -22,6 +22,9 @@ import { EnsureAuthenticated } from "@infra/webSocket/middlewares/ensureAuthenti
 import { VerifyAuthenticationUseCase } from "@application/accounts/useCases/VerifyAuthentication";
 import { GetLastRoomMessagesQuery } from "@application/chat/queries/GetLastRoomMessages";
 import { GetLastRoomMessagesController } from "@infra/http/controllers/chat/GetLastRoomMessages";
+import { GetRoomListQuery } from "@application/chat/queries/GetRoomList";
+import { GetRoomLisController } from "@infra/http/controllers/chat/GetRoomList";
+import { Logger } from "@shared/logger";
 
 (async () => {
   config();
@@ -56,6 +59,9 @@ import { GetLastRoomMessagesController } from "@infra/http/controllers/chat/GetL
   const getLastRoomMessageQuery = new GetLastRoomMessagesQuery(chatRepository);
   new GetLastRoomMessagesController(expressHttpServer, getLastRoomMessageQuery);
 
+  const getRoomLisQuery = new GetRoomListQuery(chatRepository);
+  new GetRoomLisController(expressHttpServer, getRoomLisQuery);
+
   const newMessageUseCase = new NewMessageUseCase(chatRepository, usersRepository);
   new NewMessageEventHandler(socketIoEventEmitterGatway, newMessageUseCase);
 
@@ -64,4 +70,6 @@ import { GetLastRoomMessagesController } from "@infra/http/controllers/chat/GetL
 
   const port = parseInt(process.env.PORT) || 8082;
   httpServer.listen(port, () => console.info(`Server is runing in ${port} port!`));
-})();
+})().catch((err) => {
+  Logger.error(err);
+});

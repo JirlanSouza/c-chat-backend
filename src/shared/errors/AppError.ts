@@ -1,3 +1,5 @@
-export class AppError {
-  constructor(readonly message: string, readonly statusCode: number = 400) {}
+export class AppError extends Error {
+  constructor(readonly message: string, readonly statusCode: number = 400) {
+    super(message);
+  }
 }
