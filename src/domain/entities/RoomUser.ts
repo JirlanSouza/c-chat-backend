@@ -5,11 +5,16 @@ export interface UserInfo {
 }
 
 export class RoomUser {
+  isOwner: boolean;
   available: boolean;
   userInfo: UserInfo;
 
   constructor(available: boolean, user: UserInfo) {
     this.available = available;
     this.userInfo = user;
+  }
+
+  setOwner(): void {
+    this.isOwner = true;
   }
 }
