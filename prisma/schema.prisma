@@ -22,9 +22,10 @@ model Room {
 }
 
 model RoomUser {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  roomId String
-  userId String
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  roomId  String
+  userId  String
+  isOwner Boolean @default(false)
 }
 
 model RoomMessage {
