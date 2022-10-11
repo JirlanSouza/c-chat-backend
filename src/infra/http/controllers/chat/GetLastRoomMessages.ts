@@ -1,6 +1,6 @@
 import { GetLastRoomMessagesQuery } from "@application/chat/queries/GetLastRoomMessages";
 import { IHttpServer } from "@infra/http/server/IHttpServer";
-import { Request, Response } from "../types";
+import { Request, Response } from "../../types";
 
 export class GetLastRoomMessagesController {
   constructor(
@@ -18,6 +18,6 @@ export class GetLastRoomMessagesController {
       maxMessages: parseInt(maxMessages),
     });
 
-    return { status: 200, body: getLastRoomMessageResult };
+    return { status: 200, body: { ...getLastRoomMessageResult } };
   }
 }

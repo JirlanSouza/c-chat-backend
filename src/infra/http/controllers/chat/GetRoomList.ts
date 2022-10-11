@@ -1,6 +1,6 @@
 import { GetRoomListQuery } from "@application/chat/queries/GetRoomList";
 import { IHttpServer } from "@infra/http/server/IHttpServer";
-import { Request, Response } from "../types";
+import { Request, Response } from "../../types";
 
 export class GetRoomLisController {
   constructor(httpServer: IHttpServer, private readonly getRoomLisQuery: GetRoomListQuery) {

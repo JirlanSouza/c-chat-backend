@@ -1,6 +1,6 @@
 import { RegisterUserUseCase } from "@application/accounts/useCases/RegisterUser";
 import { IHttpServer } from "@infra/http/server/IHttpServer";
-import { Request, Response } from "../types";
+import { Request, Response } from "../../types";
 
 export class RegisterUserController {
   constructor(httpServer: IHttpServer, private readonly registerUserUseCase: RegisterUserUseCase) {
