@@ -13,6 +13,6 @@ export const errorVerification = (
     return response.status(err.statusCode).json({ message: err.message });
   }
 
-  Logger.error(err.message);
+  Logger.error(err);
   return response.status(500).json({ status: "error", message: `Internal server error!` });
 };
