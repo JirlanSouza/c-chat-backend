@@ -7,7 +7,6 @@ export class HttpEnsureAuthenticated {
 
   async handler(request: Request, response: Response, next: () => void): Promise<void> {
     const authHeader = request.headers?.authorization;
-    console.log(request.headers);
 
     if (!authHeader) {
       throw new AppError("Token missing!", 401);
