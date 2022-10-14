@@ -1,7 +1,9 @@
-import { Logger } from "@shared/logger";
 import { verify } from "jsonwebtoken";
 
-import { VerifyAuthenticationInDto, VerifyAuthenticationOutDto } from "../dtos/VerifyAuthenticationDTO";
+import {
+  VerifyAuthenticationInDto,
+  VerifyAuthenticationOutDto,
+} from "../dtos/VerifyAuthenticationDTO";
 import { UsersRepository } from "../repositories/UsersRepository";
 
 export class VerifyAuthenticationUseCase {
@@ -14,14 +16,13 @@ export class VerifyAuthenticationUseCase {
       const user = await this.usersRepository.findById(userId as string);
 
       if (!user) {
-        return { errorMessage: "This user is not exists!" };
+        return { errorMessage: "This user does not exist!" };
       }
 
       return {
         userId: user.id,
       };
     } catch (err) {
-      Logger.warn(err.message);
       return { errorMessage: "Invalid token!" };
     }
   }
