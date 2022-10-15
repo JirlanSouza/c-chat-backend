@@ -134,4 +134,17 @@ export class PrismaChatRepository implements ChatRepository {
       };
     });
   }
+
+  async findRoomIdByUserId(userId: string): Promise<string[]> {
+    const roomIds = await this.prisma.roomUser.findMany({
+      select: {
+        roomId: true,
+      },
+      where: {
+        userId,
+      },
+    });
+
+    return roomIds.map((roomIdObject) => roomIdObject.roomId);
+  }
 }

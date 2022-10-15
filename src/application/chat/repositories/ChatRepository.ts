@@ -10,4 +10,5 @@ export interface ChatRepository {
   getRoomByName: (name: string) => Promise<RoomDto>;
   getMessages: (roomId: string, dateEnd: number, maxMessage: number) => Promise<MessageDto[]>;
   findRoomByUserId: (userId: string) => Promise<RoomWithLastMessageDatetimeDto[]>;
+  findRoomIdByUserId: (userId: string) => Promise<string[]>;
 }
