@@ -3,7 +3,7 @@ import { AppEventError } from "@shared/errors/AppEventError";
 import { Logger } from "@shared/logger";
 import { Socket } from "socket.io";
 
-export class EnsureAuthenticated {
+export class WebSocketEnsureAuthenticated {
   constructor(private readonly verifyAuthentication: VerifyAuthenticationUseCase) {}
 
   async handler(socket: Socket, next: (args?) => void): Promise<void> {

@@ -5,6 +5,7 @@ import { ChatMessage } from "@domain/entities/ChatMessage";
 import { AppError } from "@shared/errors/AppError";
 import { RoomDto, MessageDto } from "@application/chat/dtos/GetLastRoomMessagesDTO";
 import { RoomDto as RoomWithLastMessageDatetimeDto } from "@application/chat/dtos/GetRoomListDTO";
+import { Room } from "@domain/entities/Room";
 
 export class PrismaChatRepository implements ChatRepository {
   private readonly prisma = new PrismaClient();
@@ -27,6 +28,51 @@ export class PrismaChatRepository implements ChatRepository {
 
     if (!savedMessage) {
       throw new AppError("Error when save message", 500);
+    }
+  }
+
+  async saveRoom(room: Room): Promise<void> {
+    const transactionItems = [];
+    for (const user of room.usersList) {
+      transactionItems.push(
+        this.prisma.roomUser.create({
+          data: {
+            roomId: room.info.id,
+            userId: user.userInfo.id,
+            isOwner: user.isOwner,
+          },
+        })
+      );
+    }
+
+    for (const message of room.messagesList) {
+      transactionItems.push(
+        this.prisma.roomMessage.create({
+          data: {
+            id: message.id,
+            roomId: room.info.id,
+            userId: message.userId,
+            text: message.text,
+            created: message.created,
+          },
+        })
+      );
+    }
+
+    transactionItems.push(
+      this.prisma.room.create({
+        data: {
+          id: room.info.id,
+          name: room.info.name,
+          avatarUrl: room.info.avatarUrl,
+        },
+      })
+    );
+
+    try {
+      await this.prisma.$transaction(transactionItems);
+    } catch {
+      throw new AppError("Error when save room", 500);
     }
   }
 
@@ -87,5 +133,18 @@ export class PrismaChatRepository implements ChatRepository {
           .created.toLocaleString("pt-br", { timeZone: "America/Sao_Paulo" }),
       };
     });
+  }
+
+  async findRoomIdByUserId(userId: string): Promise<string[]> {
+    const roomIds = await this.prisma.roomUser.findMany({
+      select: {
+        roomId: true,
+      },
+      where: {
+        userId,
+      },
+    });
+
+    return roomIds.map((roomIdObject) => roomIdObject.roomId);
   }
 }
