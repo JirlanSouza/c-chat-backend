@@ -33,10 +33,6 @@ export class SocketIoEventGatway implements EventEmitterGatway {
   async userConnected(connection: Socket): Promise<void> {
     const { userId } = connection.handshake as unknown as { userId };
     Logger.info("NEW WEBSOCKET CONNECTION WITH USER_ID :", userId);
-
-    const userRoomIds = await this.getUserRoomIds.execute(userId);
-    connection.join(userRoomIds);
-
     connection.on("disconnecting", this.userDisconnected.bind(this));
 
     for (const [event] of this.subscribers) {
@@ -45,6 +41,9 @@ export class SocketIoEventGatway implements EventEmitterGatway {
         async (eventData) => await this.onMessage(connection.id, event, eventData)
       );
     }
+
+    const userRoomIds = await this.getUserRoomIds.execute(userId);
+    await connection.join(userRoomIds);
   }
 
   async userDisconnected(eventData): Promise<void> {
@@ -57,13 +56,12 @@ export class SocketIoEventGatway implements EventEmitterGatway {
     message: { roomId: string }
   ): Promise<void> {
     const handler = this.subscribers.get(eventName);
-
     try {
       const eventHandlerResult = await handler(message);
 
       if (eventHandlerResult.emitAll) {
         this.socket
-          .to(message.roomId)
+          .in(message.roomId)
           .emit(eventHandlerResult.emitEventName, eventHandlerResult.data);
       }
     } catch (err) {
