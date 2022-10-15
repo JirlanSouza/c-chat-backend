@@ -6,6 +6,7 @@ import { AppError } from "@shared/errors/AppError";
 import { RoomDto, MessageDto } from "@application/chat/dtos/GetLastRoomMessagesDTO";
 import { RoomDto as RoomWithLastMessageDatetimeDto } from "@application/chat/dtos/GetRoomListDTO";
 import { Room } from "@domain/entities/Room";
+import { Logger } from "@shared/logger";
 
 export class PrismaChatRepository implements ChatRepository {
   private readonly prisma = new PrismaClient();
@@ -71,7 +72,8 @@ export class PrismaChatRepository implements ChatRepository {
 
     try {
       await this.prisma.$transaction(transactionItems);
-    } catch {
+    } catch (err) {
+      Logger.error(err);
       throw new AppError("Error when save room", 500);
     }
   }
