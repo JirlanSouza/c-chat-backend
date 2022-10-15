@@ -28,6 +28,7 @@ import { Logger } from "@shared/logger";
 import { CreateRoomUseCase } from "@application/chat/useCases/CreateRoom";
 import { CreateRoomController } from "@infra/http/controllers/chat/CreateRoom";
 import { HttpEnsureAuthenticated } from "@infra/http/midllewares/ensureAuthenticated";
+import { GetUserRoomIdListQuery } from "@application/chat/queries/GetUserRoomIdList";
 
 (async () => {
   config();
@@ -53,7 +54,8 @@ import { HttpEnsureAuthenticated } from "@infra/http/midllewares/ensureAuthentic
   const httpEnsureAuthenticated = new HttpEnsureAuthenticated(verifyAuthentication);
 
   socketIo.use(webSocketEnsureAuthenticated.handler.bind(webSocketEnsureAuthenticated));
-  const socketIoEventEmitterGatway = new SocketIoEventGatway(socketIo);
+  const getUserRoomIdListQuery = new GetUserRoomIdListQuery(chatRepository);
+  const socketIoEventEmitterGatway = new SocketIoEventGatway(socketIo, getUserRoomIdListQuery);
 
   const registerUserUsecase = new RegisterUserUseCase(usersRepository);
   const authenticateUserUseCase = new AuthenticateUserUseCase(usersRepository);
@@ -67,8 +69,8 @@ import { HttpEnsureAuthenticated } from "@infra/http/midllewares/ensureAuthentic
   const getLastRoomMessageQuery = new GetLastRoomMessagesQuery(chatRepository);
   new GetLastRoomMessagesController(expressHttpServer, getLastRoomMessageQuery);
 
-  const getRoomLisQuery = new GetRoomListQuery(chatRepository);
-  new GetRoomLisController(expressHttpServer, getRoomLisQuery);
+  const getRoomListQuery = new GetRoomListQuery(chatRepository);
+  new GetRoomLisController(expressHttpServer, getRoomListQuery);
 
   const newMessageUseCase = new NewMessageUseCase(chatRepository, usersRepository);
   new NewMessageEventHandler(socketIoEventEmitterGatway, newMessageUseCase);
