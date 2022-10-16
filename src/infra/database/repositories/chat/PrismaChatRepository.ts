@@ -7,6 +7,7 @@ import { RoomDto, MessageDto } from "@application/chat/dtos/GetLastRoomMessagesD
 import { RoomDto as RoomWithLastMessageDatetimeDto } from "@application/chat/dtos/GetRoomListDTO";
 import { Room } from "@domain/entities/Room";
 import { Logger } from "@shared/logger";
+import { RoomUser } from "@domain/entities/RoomUser";
 
 export class PrismaChatRepository implements ChatRepository {
   private readonly prisma = new PrismaClient();
@@ -14,6 +15,25 @@ export class PrismaChatRepository implements ChatRepository {
   async existsRoomById(id: string): Promise<boolean> {
     const room = await this.prisma.room.findUnique({ where: { id } });
     return !!room;
+  }
+
+  async findRoomById(roomId: string): Promise<Room> {
+    const roomdata = await this.prisma.room.findUnique({ where: { id: roomId } });
+    const roomUsersData = await this.prisma.roomUser.findMany({ where: { roomId } });
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: roomUsersData.map((roomUser) => roomUser.id) } },
+    });
+    const roomUsers = users.map((user) => {
+      return new RoomUser(false, { id: user.id, name: user.name, avatarUrl: user.avatarurl });
+    });
+
+    const messagesData = await this.prisma.roomMessage.findMany({ where: { roomId } });
+    const roomMessages = messagesData.map((message) => {
+      return ChatMessage.from(message.id, message.userId, message.text, message.created);
+    });
+
+    const room = Room.from(roomdata.id, roomdata.name, roomdata.avatarUrl, roomUsers, roomMessages);
+    return room;
   }
 
   async saveMessage(roomId: string, message: ChatMessage): Promise<void> {
@@ -76,6 +96,28 @@ export class PrismaChatRepository implements ChatRepository {
       Logger.error(err);
       throw new AppError("Error when save room", 500);
     }
+  }
+
+  async saveUserAtRoom(
+    roomId: string,
+    roomUser: RoomUser
+  ): Promise<RoomWithLastMessageDatetimeDto> {
+    const roomUserSaved = await this.prisma.roomUser.create({
+      data: { roomId, userId: roomUser.userInfo.id, isOwner: roomUser.isOwner },
+    });
+
+    if (!roomUserSaved) {
+      throw new AppError("Error to save user in room");
+    }
+
+    const room = await this.prisma.room.findUnique({ where: { id: roomId } });
+    const lastRoomMessage = await this.prisma.roomMessage.findFirst({ where: { roomId } });
+    return {
+      id: room.id,
+      name: room.name,
+      avatarUrl: room.avatarUrl,
+      lastMessageDatetime: lastRoomMessage.created.toLocaleDateString("pt-br"),
+    };
   }
 
   async getRoomByName(name: string): Promise<RoomDto> {
