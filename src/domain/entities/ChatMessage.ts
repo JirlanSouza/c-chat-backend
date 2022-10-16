@@ -6,15 +6,15 @@ export class ChatMessage {
   text: string;
   readonly created: Date;
 
-  private constructor(id: string, userId: string, text: string) {
+  private constructor(id: string, userId: string, text: string, created = new Date()) {
     this.id = id;
     this.userId = userId;
     this.text = text;
-    this.created = new Date();
+    this.created = created;
   }
 
-  static from(id: string, userId: string, text: string): ChatMessage {
-    return new ChatMessage(id, userId, text);
+  static from(id: string, userId: string, text: string, created: Date): ChatMessage {
+    return new ChatMessage(id, userId, text, created);
   }
 
   static create(userId: string, text: string): ChatMessage {
