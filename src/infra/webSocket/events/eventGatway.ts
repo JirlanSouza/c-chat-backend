@@ -10,20 +10,21 @@ type ConnectedUsers = Map<string, string>;
 const APP_ERROR_EVENT = "ERROR";
 
 export class SocketIoEventGatway implements EventEmitterGatway {
-  private readonly connectedusers: ConnectedUsers;
+  private readonly connectedUsers: ConnectedUsers;
   private readonly subscribers: Map<string, EventHandler>;
 
   constructor(
     private readonly socket: Server,
     private readonly getUserRoomIds: GetUserRoomIdListQuery
   ) {
-    this.connectedusers = new Map();
+    this.connectedUsers = new Map();
     this.subscribers = new Map();
   }
 
+  subscribeUserToRoom: (userId: string, roomId: string) => void;
+
   onEvents(): void {
     this.socket.on("connection", this.userConnected.bind(this));
-    this.socket.on("disconnecting", this.userDisconnected.bind(this));
   }
 
   subscribeEvent(eventName: string, handler: EventHandler): void {
@@ -32,8 +33,14 @@ export class SocketIoEventGatway implements EventEmitterGatway {
 
   async userConnected(connection: Socket): Promise<void> {
     const { userId } = connection.handshake as unknown as { userId };
+    this.connectedUsers.set(userId, connection.id);
+
     Logger.info("NEW WEBSOCKET CONNECTION WITH USER_ID :", userId);
-    connection.on("disconnecting", this.userDisconnected.bind(this));
+
+    connection.on(
+      "disconnecting",
+      async (eventData) => await this.userDisconnected(userId, eventData)
+    );
 
     for (const [event] of this.subscribers) {
       connection.on(
@@ -46,8 +53,9 @@ export class SocketIoEventGatway implements EventEmitterGatway {
     await connection.join(userRoomIds);
   }
 
-  async userDisconnected(eventData): Promise<void> {
-    console.log(eventData);
+  async userDisconnected(userId: string, eventData): Promise<void> {
+    this.connectedUsers.delete(userId);
+    Logger.info(eventData);
   }
 
   async onMessage(
@@ -76,7 +84,16 @@ export class SocketIoEventGatway implements EventEmitterGatway {
     }
   }
 
+  emitToUser(userId: string, eventName: string, eventdata): void {
+    if (!this.connectedUsers.has(userId)) {
+      return;
+    }
+
+    const userConnectionId = this.connectedUsers.get(userId);
+    this.socket.to(userConnectionId).emit(eventName, eventdata);
+  }
+
   addConnectionUser(socket: Socket, userId: string): void {
-    this.connectedusers.set(userId, socket.id);
+    this.connectedUsers.set(userId, socket.id);
   }
 }

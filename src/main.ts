@@ -10,13 +10,13 @@ import { PrismaUsersrepository } from "@infra/database/repositories/users/Prisma
 import { RegisterUserController } from "@infra/http/controllers/accounts/RegisterUserController";
 import { ExpressHttpServer } from "@infra/http/server/ExpressHttpServer";
 import { Db } from "@infra/database/conection";
-import { errorVerification } from "@infra/http/midllewares/errorVerification";
+import { errorVerification } from "@infra/http/middlewares/errorVerification";
 import { AuthenticateUserUseCase } from "@application/accounts/useCases/AuthenticateUser";
 import { AuthenticateUserController } from "@infra/http/controllers/accounts/AuthenticateUserController";
 import { NewMessageUseCase } from "@application/chat/useCases/NewMessage";
-import { NewMessageEventHandler } from "@infra/webSocket/events/handlers/newMessageEventHandler";
+import { NewMessageEventHandler } from "@infra/webSocket/events/handlers/newMessageEvent";
 import { SocketIoEventGatway } from "@infra/webSocket/events/eventGatway";
-import { logger } from "@infra/http/midllewares/logger";
+import { logger } from "@infra/http/middlewares/logger";
 import { PrismaChatRepository } from "@infra/database/repositories/chat/PrismaChatRepository";
 import { WebSocketEnsureAuthenticated } from "@infra/webSocket/middlewares/ensureAuthenticated";
 import { VerifyAuthenticationUseCase } from "@application/accounts/useCases/VerifyAuthentication";
@@ -27,8 +27,13 @@ import { GetRoomLisController } from "@infra/http/controllers/chat/GetRoomList";
 import { Logger } from "@shared/logger";
 import { CreateRoomUseCase } from "@application/chat/useCases/CreateRoom";
 import { CreateRoomController } from "@infra/http/controllers/chat/CreateRoom";
-import { HttpEnsureAuthenticated } from "@infra/http/midllewares/ensureAuthenticated";
+import { HttpEnsureAuthenticated } from "@infra/http/middlewares/ensureAuthenticated";
 import { GetUserRoomIdListQuery } from "@application/chat/queries/GetUserRoomIdList";
+import { notFound } from "@infra/http/middlewares/notFound";
+import { AddUserToRoomUseCase } from "@application/chat/useCases/AddUserToRoom";
+import { AddUserToRoomController } from "@infra/http/controllers/chat/AddUserToRoom";
+import { Mediator } from "@application/mediator/Mediator";
+import { NewUserAddedToRoomEventHandler } from "@infra/webSocket/events/handlers/NewUserAddedToRoom";
 
 (async () => {
   config();
@@ -46,6 +51,7 @@ import { GetUserRoomIdListQuery } from "@application/chat/queries/GetUserRoomIdL
     },
   });
   const expressHttpServer = new ExpressHttpServer(expressApp);
+  const mediator = new Mediator();
 
   const usersRepository = new PrismaUsersrepository();
   const chatRepository = new PrismaChatRepository();
@@ -62,9 +68,13 @@ import { GetUserRoomIdListQuery } from "@application/chat/queries/GetUserRoomIdL
   new RegisterUserController(expressHttpServer, registerUserUsecase);
   new AuthenticateUserController(expressHttpServer, authenticateUserUseCase);
 
-  const createRoomuseCase = new CreateRoomUseCase(usersRepository, chatRepository);
+  const createRoomUseCase = new CreateRoomUseCase(usersRepository, chatRepository);
   expressHttpServer.setMeddleware(httpEnsureAuthenticated.handler.bind(httpEnsureAuthenticated));
-  new CreateRoomController(expressHttpServer, createRoomuseCase);
+  new CreateRoomController(expressHttpServer, createRoomUseCase);
+
+  const addUserToRoomUseCase = new AddUserToRoomUseCase(usersRepository, chatRepository, mediator);
+  expressHttpServer.setMeddleware(httpEnsureAuthenticated.handler.bind(httpEnsureAuthenticated));
+  new AddUserToRoomController(expressHttpServer, addUserToRoomUseCase);
 
   const getLastRoomMessageQuery = new GetLastRoomMessagesQuery(chatRepository);
   new GetLastRoomMessagesController(expressHttpServer, getLastRoomMessageQuery);
@@ -74,9 +84,11 @@ import { GetUserRoomIdListQuery } from "@application/chat/queries/GetUserRoomIdL
 
   const newMessageUseCase = new NewMessageUseCase(chatRepository, usersRepository);
   new NewMessageEventHandler(socketIoEventEmitterGatway, newMessageUseCase);
+  new NewUserAddedToRoomEventHandler(socketIoEventEmitterGatway, mediator);
 
   socketIoEventEmitterGatway.onEvents();
   expressApp.use(errorVerification);
+  expressApp.use(notFound);
 
   const port = parseInt(process.env.PORT) || 8082;
   httpServer.listen(port, () => console.info(`Server is runing in ${port} port!`));

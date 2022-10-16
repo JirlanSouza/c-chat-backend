@@ -15,10 +15,10 @@ export class Room {
   private users: RoomUser[] = [];
   private messages: ChatMessage[] = [];
 
-  private constructor(id: string, name: string) {
+  private constructor(id: string, name: string, avatarUrl = "") {
     this.id = id;
     this.name = name;
-    this.avatarUrl = "";
+    this.avatarUrl = avatarUrl;
   }
 
   static create(name: string): Room {
@@ -26,8 +26,14 @@ export class Room {
     return new Room(id, name);
   }
 
-  static from(id: string, name: string, users: RoomUser[], messages: ChatMessage[]): Room {
-    const room = new Room(id, name);
+  static from(
+    id: string,
+    name: string,
+    avatarUrl: string,
+    users: RoomUser[],
+    messages: ChatMessage[]
+  ): Room {
+    const room = new Room(id, name, avatarUrl);
     room.addmanyUsers(users);
     room.addManyMessages(messages);
     return room;

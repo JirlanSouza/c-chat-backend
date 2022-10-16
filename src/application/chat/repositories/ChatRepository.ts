@@ -1,5 +1,6 @@
 import { ChatMessage } from "@domain/entities/ChatMessage";
 import { Room } from "@domain/entities/Room";
+import { RoomUser } from "@domain/entities/RoomUser";
 import { MessageDto, RoomDto } from "../dtos/GetLastRoomMessagesDTO";
 import { RoomDto as RoomWithLastMessageDatetimeDto } from "../dtos/GetRoomListDTO";
 
@@ -11,4 +12,6 @@ export interface ChatRepository {
   getMessages: (roomId: string, dateEnd: number, maxMessage: number) => Promise<MessageDto[]>;
   findRoomByUserId: (userId: string) => Promise<RoomWithLastMessageDatetimeDto[]>;
   findRoomIdByUserId: (userId: string) => Promise<string[]>;
+  findRoomById: (roomId: string) => Promise<Room>;
+  saveUserAtRoom: (roomId: string, roomUser: RoomUser) => Promise<RoomWithLastMessageDatetimeDto>;
 }
