@@ -34,6 +34,8 @@ import { AddUserToRoomUseCase } from "@application/chat/useCases/AddUserToRoom";
 import { AddUserToRoomController } from "@infra/http/controllers/chat/AddUserToRoom";
 import { Mediator } from "@application/mediator/Mediator";
 import { NewUserAddedToRoomEventHandler } from "@infra/webSocket/events/handlers/NewUserAddedToRoom";
+import { GetUserInfoQuery } from "@application/accounts/queries/GetuserInfo";
+import { GetUserInfoController } from "@infra/http/controllers/accounts/GetuserInfo";
 
 (async () => {
   config();
@@ -58,15 +60,20 @@ import { NewUserAddedToRoomEventHandler } from "@infra/webSocket/events/handlers
   const verifyAuthentication = new VerifyAuthenticationUseCase(usersRepository);
   const webSocketEnsureAuthenticated = new WebSocketEnsureAuthenticated(verifyAuthentication);
   const httpEnsureAuthenticated = new HttpEnsureAuthenticated(verifyAuthentication);
-
   socketIo.use(webSocketEnsureAuthenticated.handler.bind(webSocketEnsureAuthenticated));
+
   const getUserRoomIdListQuery = new GetUserRoomIdListQuery(chatRepository);
   const socketIoEventEmitterGatway = new SocketIoEventGatway(socketIo, getUserRoomIdListQuery);
 
   const registerUserUsecase = new RegisterUserUseCase(usersRepository);
-  const authenticateUserUseCase = new AuthenticateUserUseCase(usersRepository);
   new RegisterUserController(expressHttpServer, registerUserUsecase);
+
+  const authenticateUserUseCase = new AuthenticateUserUseCase(usersRepository);
   new AuthenticateUserController(expressHttpServer, authenticateUserUseCase);
+
+  const getuserInfoQuery = new GetUserInfoQuery(usersRepository);
+  expressHttpServer.setMeddleware(httpEnsureAuthenticated.handler.bind(httpEnsureAuthenticated));
+  new GetUserInfoController(expressHttpServer, getuserInfoQuery);
 
   const createRoomUseCase = new CreateRoomUseCase(usersRepository, chatRepository);
   expressHttpServer.setMeddleware(httpEnsureAuthenticated.handler.bind(httpEnsureAuthenticated));
