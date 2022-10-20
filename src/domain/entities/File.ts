@@ -5,19 +5,37 @@ export class File {
   name: string;
   type: string;
   size: number;
-  duration: number;
-  data: ArrayBuffer;
+  available: boolean;
+  url: string;
 
-  constructor(id: string, name: string, type: string, size: number, duration: number, data) {
+  private constructor(
+    id: string,
+    name: string,
+    type: string,
+    size: number,
+    available: boolean,
+    url: string
+  ) {
     this.id = id;
     this.name = name;
     this.size = size;
-    this.duration = duration;
-    this.data = data;
+    this.available = available;
+    this.url = url;
   }
 
-  static create(name: string, type: string, size: number, duration: number, data): File {
+  static create(name: string, type: string, size: number, available = false, url = ""): File {
     const id = generateId();
-    return new File(id, name, type, size, duration, data);
+    return new File(id, name, type, size, available, url);
+  }
+
+  static from(
+    id: string,
+    name: string,
+    type: string,
+    size: number,
+    available: boolean,
+    url: string
+  ): File {
+    return new File(id, name, type, size, available, url);
   }
 }
