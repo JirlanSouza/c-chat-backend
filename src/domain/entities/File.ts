@@ -38,4 +38,8 @@ export class File {
   ): File {
     return new File(id, name, type, size, available, url);
   }
+
+  updateUrl(url: string): void {
+    this.url = url;
+  }
 }
