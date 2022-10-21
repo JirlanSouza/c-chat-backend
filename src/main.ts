@@ -33,7 +33,7 @@ import { notFound } from "@infra/http/middlewares/notFound";
 import { AddUserToRoomUseCase } from "@application/chat/useCases/AddUserToRoom";
 import { AddUserToRoomController } from "@infra/http/controllers/chat/AddUserToRoom";
 import { Mediator } from "@application/mediator/Mediator";
-import { NewUserAddedToRoomEventHandler } from "@infra/webSocket/events/handlers/NewUserAddedToRoom";
+import { NewUserAddedToRoomEventHandler } from "@infra/webSocket/events/handlers/newUserAddedToRoom";
 import { GetUserInfoQuery } from "@application/accounts/queries/GetuserInfo";
 import { GetUserInfoController } from "@infra/http/controllers/accounts/GetuserInfo";
 
