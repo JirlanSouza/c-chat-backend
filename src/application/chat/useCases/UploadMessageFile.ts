@@ -1,16 +1,16 @@
 import { AppError } from "@shared/errors/AppError";
 import { UploadMessageFileInDto, UploadMessageFileOutDto } from "../dtos/UploadMessageFileDTO";
-import { FileRepository } from "../repositories/FileRepository";
+import { MessageFileRepository } from "../repositories/MessageFileRepository";
 import { StorageGatway } from "../storage/StorageGatway";
 
 export class UploadMessageFileUseCase {
   constructor(
-    private readonly fileRepository: FileRepository,
+    private readonly messageFileRepository: MessageFileRepository,
     private readonly storageGatway: StorageGatway
   ) {}
 
   async execute(data: UploadMessageFileInDto): Promise<UploadMessageFileOutDto> {
-    const file = await this.fileRepository.findById(data.fileId);
+    const file = await this.messageFileRepository.findById(data.fileId);
 
     if (!file) {
       throw new AppError("File does not exist!");

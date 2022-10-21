@@ -3,13 +3,13 @@ import { ChatMessage } from "@domain/entities/ChatMessage";
 import { MessageFileOutData, NewMessageInDto, NewMessageOutDto } from "../dtos/NewMessageTDO";
 import { ChatRepository } from "../repositories/ChatRepository";
 import { AppError } from "@shared/errors/AppError";
-import { FileRepository } from "../repositories/FileRepository";
+import { MessageFileRepository } from "../repositories/MessageFileRepository";
 import { File } from "@domain/entities/File";
 
 export class NewMessageUseCase {
   constructor(
     private readonly chatRepository: ChatRepository,
-    private readonly fileRepository: FileRepository,
+    private readonly fileRepository: MessageFileRepository,
     private readonly usersRepositoty: UsersRepository
   ) {}
 
