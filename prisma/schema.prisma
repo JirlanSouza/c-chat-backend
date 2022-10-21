@@ -41,7 +41,7 @@ model MessageFile {
   messageId String
   name      String
   type      String
-  size      BigInt
+  size      Int
   available Boolean
   url       String
 }
