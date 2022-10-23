@@ -23,7 +23,7 @@ export class NewMessageUseCase {
     const user = await this.usersRepositoty.findById(data.userId);
 
     if (!user) {
-      throw new AppError("user does not exists!");
+      throw new AppError("User does not exists!");
     }
 
     const message = ChatMessage.create(data.userId, data.text);
@@ -46,7 +46,6 @@ export class NewMessageUseCase {
           name: file.name,
           type: file.type,
           available: file.available,
-          url: file.url,
         };
       });
     }

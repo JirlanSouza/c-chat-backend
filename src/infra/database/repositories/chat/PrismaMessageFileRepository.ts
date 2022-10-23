@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 import { MessageFileRepository } from "@application/chat/repositories/MessageFileRepository";
 import { File } from "@domain/entities/File";
+import { AppError } from "@shared/errors/AppError";
 
 export class PrismaMessageFileRepository implements MessageFileRepository {
   private readonly prisma = new PrismaClient();
@@ -15,7 +16,6 @@ export class PrismaMessageFileRepository implements MessageFileRepository {
         type: file.type,
         size: file.size,
         available: file.available,
-        url: file.url,
       })),
     });
   }
@@ -28,21 +28,76 @@ export class PrismaMessageFileRepository implements MessageFileRepository {
         type: file.type,
         size: file.size,
         available: file.available,
-        url: file.url,
       },
     });
   }
 
   async findById(id: string): Promise<File> {
     const fileData = await this.prisma.messageFile.findUnique({ where: { id } });
+
+    if (!fileData) {
+      throw new AppError("File does not exist!");
+    }
+
     const file = File.from(
       fileData.id,
       fileData.name,
       fileData.type,
       fileData.size,
-      fileData.available,
-      fileData.url
+      fileData.available
     );
     return file;
+  }
+
+  async findRoomIdById(id: string): Promise<string> {
+    const messageFile = await this.prisma.messageFile.findUnique({
+      where: { id },
+      select: { messageId: true },
+    });
+
+    if (!messageFile) {
+      throw new AppError("File does not exist!");
+    }
+
+    const roomMessage = await this.prisma.roomMessage.findUnique({
+      where: { id: messageFile.messageId },
+      select: { roomId: true },
+    });
+
+    if (!roomMessage) {
+      throw new AppError("file message does not exist!");
+    }
+
+    return roomMessage.roomId;
+  }
+
+  async findAccessByUserId(userId: string, fileId: string): Promise<boolean> {
+    const messageFile = await this.prisma.messageFile.findUnique({
+      where: { id: fileId },
+      select: { messageId: true },
+    });
+
+    if (!messageFile) {
+      throw new AppError("File does not exist!");
+    }
+
+    const roomMessage = await this.prisma.roomMessage.findUnique({
+      where: { id: messageFile.messageId },
+      select: { roomId: true },
+    });
+
+    if (!roomMessage) {
+      throw new AppError("file message does not exist!");
+    }
+
+    const roomUserCount = await this.prisma.roomUser.count({
+      where: { roomId: roomMessage.roomId, userId },
+    });
+
+    if (!roomUserCount) {
+      return false;
+    }
+
+    return true;
   }
 }

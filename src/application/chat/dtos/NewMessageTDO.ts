@@ -25,7 +25,6 @@ export interface MessageFileOutData {
   name: string;
   type: string;
   available: boolean;
-  url: string;
 }
 
 export interface User {

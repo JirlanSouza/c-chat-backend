@@ -8,5 +8,4 @@ export interface UploadMessageFileOutDto {
   name: string;
   type: string;
   available: boolean;
-  url: string;
 }
