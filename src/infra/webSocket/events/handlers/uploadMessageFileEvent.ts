@@ -3,6 +3,7 @@ import { EventEmitterGatway } from "../EventEmitterGatway";
 import { EventHandlerOut } from "./types";
 
 interface UploadMessageFileEventData {
+  roomId: string;
   fileId: string;
   data: ArrayBuffer;
 }
