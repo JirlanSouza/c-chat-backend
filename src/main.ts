@@ -33,9 +33,13 @@ import { notFound } from "@infra/http/middlewares/notFound";
 import { AddUserToRoomUseCase } from "@application/chat/useCases/AddUserToRoom";
 import { AddUserToRoomController } from "@infra/http/controllers/chat/AddUserToRoom";
 import { Mediator } from "@application/mediator/Mediator";
-import { NewUserAddedToRoomEventHandler } from "@infra/webSocket/events/handlers/NewUserAddedToRoom";
+import { NewUserAddedToRoomEventHandler } from "@infra/webSocket/events/handlers/newUserAddedToRoom";
 import { GetUserInfoQuery } from "@application/accounts/queries/GetuserInfo";
 import { GetUserInfoController } from "@infra/http/controllers/accounts/GetuserInfo";
+import { PrismaMessageFileRepository } from "@infra/database/repositories/chat/PrismaMessageFileRepository";
+import { UploadMessageFileUseCase } from "@application/chat/useCases/UploadMessageFile";
+import { GoogleCloudStorageGatway } from "@infra/storage/GoogleCloudStorageGatway";
+import { UploadMessageFileEventHandler } from "@infra/webSocket/events/handlers/uploadMessageFileEvent";
 
 (async () => {
   config();
@@ -51,12 +55,15 @@ import { GetUserInfoController } from "@infra/http/controllers/accounts/GetuserI
       origin: process.env.CORS_ORIGIN,
       methods: ["GET", "POST"],
     },
+    maxHttpBufferSize: 1e8,
   });
   const expressHttpServer = new ExpressHttpServer(expressApp);
   const mediator = new Mediator();
+  const storageGatway = new GoogleCloudStorageGatway();
 
   const usersRepository = new PrismaUsersrepository();
   const chatRepository = new PrismaChatRepository();
+  const messageFileRepository = new PrismaMessageFileRepository();
   const verifyAuthentication = new VerifyAuthenticationUseCase(usersRepository);
   const webSocketEnsureAuthenticated = new WebSocketEnsureAuthenticated(verifyAuthentication);
   const httpEnsureAuthenticated = new HttpEnsureAuthenticated(verifyAuthentication);
@@ -89,9 +96,19 @@ import { GetUserInfoController } from "@infra/http/controllers/accounts/GetuserI
   const getRoomListQuery = new GetRoomListQuery(chatRepository);
   new GetRoomLisController(expressHttpServer, getRoomListQuery);
 
-  const newMessageUseCase = new NewMessageUseCase(chatRepository, usersRepository);
+  const newMessageUseCase = new NewMessageUseCase(
+    chatRepository,
+    messageFileRepository,
+    usersRepository
+  );
+  const uploadMessageFileUsecase = new UploadMessageFileUseCase(
+    messageFileRepository,
+    storageGatway
+  );
+
   new NewMessageEventHandler(socketIoEventEmitterGatway, newMessageUseCase);
   new NewUserAddedToRoomEventHandler(socketIoEventEmitterGatway, mediator);
+  new UploadMessageFileEventHandler(socketIoEventEmitterGatway, uploadMessageFileUsecase);
 
   socketIoEventEmitterGatway.onEvents();
   expressApp.use(errorVerification);
