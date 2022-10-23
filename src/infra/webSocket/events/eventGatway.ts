@@ -68,6 +68,7 @@ export class SocketIoEventGatway implements EventEmitterGatway {
       const eventHandlerResult = await handler(message);
 
       if (eventHandlerResult.emitAll) {
+        Logger.info("EMITING: ", eventHandlerResult.emitEventName);
         this.socket
           .in(message.roomId)
           .emit(eventHandlerResult.emitEventName, eventHandlerResult.data);
