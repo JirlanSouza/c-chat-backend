@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getStorage } from "firebase-admin/storage";
 
@@ -7,7 +8,7 @@ import { Bucket } from "@google-cloud/storage";
 import { AppError } from "@shared/errors/AppError";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const serviceAccount = require(process.env.STORAGE_SEVICE_ACOOUNT);
+const serviceAccount = require(resolve(process.env.STORAGE_SERVICE_ACCOUNT));
 
 export class GoogleCloudStorageGatway implements StorageGatway {
   private readonly storageBucket: Bucket;
@@ -21,7 +22,8 @@ export class GoogleCloudStorageGatway implements StorageGatway {
   }
 
   async save(file: File, data): Promise<string> {
-    const storageFileName = file.id + file.name;
+    const folder = file.type.split("/")[0] || "common";
+    const storageFileName = `${process.env.STORAGE_ENV || "dev"}/${folder}/${file.id}_${file.name}`;
     const storageFile = this.storageBucket.file(storageFileName);
 
     try {
