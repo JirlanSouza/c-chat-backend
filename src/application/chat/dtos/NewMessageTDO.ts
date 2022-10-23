@@ -6,9 +6,9 @@ export class NewMessageInDto {
 }
 
 export interface MessageFileData {
-  fileName: string;
-  fileType: string;
-  fileSize: number;
+  name: string;
+  type: string;
+  size: number;
 }
 
 export interface NewMessageOutDto {

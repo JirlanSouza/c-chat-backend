@@ -31,10 +31,10 @@ export class NewMessageUseCase {
 
     let filesResult: MessageFileOutData[];
 
-    if (data.files) {
+    if (!!data.files && data.files.length) {
       const files: File[] = [];
       for (const fileData of data.files) {
-        const file = File.create(fileData.fileName, fileData.fileType, fileData.fileSize);
+        const file = File.create(fileData.name, fileData.type, fileData.size);
         files.push(file);
       }
 
