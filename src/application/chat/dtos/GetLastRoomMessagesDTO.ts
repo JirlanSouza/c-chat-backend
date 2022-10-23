@@ -12,6 +12,7 @@ export interface MessageDto {
   roomId: string;
   user: User;
   text: string;
+  files?: MessageFile[];
   created: string;
 }
 
@@ -19,6 +20,14 @@ export interface User {
   id: string;
   name: string;
   avatarUrl: string;
+}
+
+export interface MessageFile {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  available: boolean;
 }
 
 export interface RoomDto {
