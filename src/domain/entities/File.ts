@@ -19,6 +19,7 @@ export class File {
     this.id = id;
     this.name = name;
     this.size = size;
+    this.type = type;
     this.available = available;
     this.url = url;
   }
@@ -41,5 +42,9 @@ export class File {
 
   updateUrl(url: string): void {
     this.url = url;
+  }
+
+  updateAvailable(isAvailable: boolean): void {
+    this.available = isAvailable;
   }
 }

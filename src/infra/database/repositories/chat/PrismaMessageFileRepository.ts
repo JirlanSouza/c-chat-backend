@@ -20,6 +20,19 @@ export class PrismaMessageFileRepository implements MessageFileRepository {
     });
   }
 
+  async update(file: File): Promise<void> {
+    await this.prisma.messageFile.update({
+      where: { id: file.id },
+      data: {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        available: file.available,
+        url: file.url,
+      },
+    });
+  }
+
   async findById(id: string): Promise<File> {
     const fileData = await this.prisma.messageFile.findUnique({ where: { id } });
     const file = File.from(

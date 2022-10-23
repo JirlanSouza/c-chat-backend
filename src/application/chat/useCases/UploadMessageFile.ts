@@ -23,6 +23,8 @@ export class UploadMessageFileUseCase {
     }
 
     file.updateUrl(savedFileUrl);
+    file.updateAvailable(true);
+    await this.messageFileRepository.update(file);
 
     return {
       id: file.id,
