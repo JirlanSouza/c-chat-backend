@@ -40,6 +40,8 @@ import { PrismaMessageFileRepository } from "@infra/database/repositories/chat/P
 import { UploadMessageFileUseCase } from "@application/chat/useCases/UploadMessageFile";
 import { GoogleCloudStorageGatway } from "@infra/storage/GoogleCloudStorageGatway";
 import { UploadMessageFileEventHandler } from "@infra/webSocket/events/handlers/uploadMessageFileEvent";
+import { GenerateFileDownloadUrlUseCase } from "@application/chat/useCases/generateFileDownloadUrl";
+import { GenerateFileDownloadUrlController } from "@infra/http/controllers/chat/GenerateFileDownloadUrl";
 
 (async () => {
   config();
@@ -95,6 +97,13 @@ import { UploadMessageFileEventHandler } from "@infra/webSocket/events/handlers/
 
   const getRoomListQuery = new GetRoomListQuery(chatRepository);
   new GetRoomLisController(expressHttpServer, getRoomListQuery);
+
+  const generateFileDownloadurlUseCase = new GenerateFileDownloadUrlUseCase(
+    messageFileRepository,
+    storageGatway
+  );
+  expressHttpServer.setMeddleware(httpEnsureAuthenticated.handler.bind(httpEnsureAuthenticated));
+  new GenerateFileDownloadUrlController(expressHttpServer, generateFileDownloadurlUseCase);
 
   const newMessageUseCase = new NewMessageUseCase(
     chatRepository,
