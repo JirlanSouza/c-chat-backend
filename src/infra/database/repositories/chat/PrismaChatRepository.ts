@@ -134,9 +134,22 @@ export class PrismaChatRepository implements ChatRepository {
       where: { id: { in: messages.map((message) => message.userId) } },
     });
 
+    const messagesFiles = await this.prisma.messageFile.findMany({
+      where: { messageId: { in: messages.map((message) => message.id) } },
+    });
+
     return messages.map((message) => {
-      const user = users.find((user) => user.id === message.userId);
       const { id, roomId, text, created } = message;
+      const user = users.find((user) => user.id === message.userId);
+      const files = messagesFiles
+        .filter((file) => file.messageId === id)
+        .map((file) => ({
+          id: file.id,
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          available: file.available,
+        }));
 
       return {
         id,
@@ -147,6 +160,7 @@ export class PrismaChatRepository implements ChatRepository {
           avatarUrl: user.avatarurl,
         },
         text,
+        files,
         created: created.toLocaleString("pt-br", { timeZone: "America/Sao_Paulo" }),
       };
     });
