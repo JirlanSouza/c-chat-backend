@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { resolve } from "path";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getStorage } from "firebase-admin/storage";
 
