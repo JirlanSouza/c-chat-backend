@@ -16,13 +16,7 @@ export class UploadMessageFileUseCase {
       throw new AppError("File does not exist!");
     }
 
-    const savedFileUrl = await this.storageGatway.save(file, data.data);
-
-    if (!savedFileUrl) {
-      throw new AppError("Error in save file");
-    }
-
-    file.updateUrl(savedFileUrl);
+    await this.storageGatway.save(file, data.data);
     file.updateAvailable(true);
     await this.messageFileRepository.update(file);
 
@@ -31,7 +25,6 @@ export class UploadMessageFileUseCase {
       name: file.name,
       type: file.type,
       available: file.available,
-      url: file.url,
     };
   }
 }

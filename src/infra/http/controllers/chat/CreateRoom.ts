@@ -12,8 +12,12 @@ export class CreateRoomController {
     const { userId } = request;
     const { roomName } = request.body;
 
+    if (!userId) {
+      throw new AppError("Authentication required!", 401);
+    }
+
     if (!roomName) {
-      throw new AppError("roomName is required");
+      throw new AppError("roomName is required!");
     }
 
     const createRoomResult = await this.createRoomUseCase.execute({ userId, roomName });

@@ -6,42 +6,22 @@ export class File {
   type: string;
   size: number;
   available: boolean;
-  url: string;
 
-  private constructor(
-    id: string,
-    name: string,
-    type: string,
-    size: number,
-    available: boolean,
-    url: string
-  ) {
+  private constructor(id: string, name: string, type: string, size: number, available: boolean) {
     this.id = id;
     this.name = name;
     this.size = size;
     this.type = type;
     this.available = available;
-    this.url = url;
   }
 
-  static create(name: string, type: string, size: number, available = false, url = ""): File {
+  static create(name: string, type: string, size: number, available = false): File {
     const id = generateId();
-    return new File(id, name, type, size, available, url);
+    return new File(id, name, type, size, available);
   }
 
-  static from(
-    id: string,
-    name: string,
-    type: string,
-    size: number,
-    available: boolean,
-    url: string
-  ): File {
-    return new File(id, name, type, size, available, url);
-  }
-
-  updateUrl(url: string): void {
-    this.url = url;
+  static from(id: string, name: string, type: string, size: number, available: boolean): File {
+    return new File(id, name, type, size, available);
   }
 
   updateAvailable(isAvailable: boolean): void {
