@@ -7,6 +7,7 @@ import { StorageGatway } from "@application/chat/storage/StorageGatway";
 import { File } from "@domain/entities/File";
 import { Bucket } from "@google-cloud/storage";
 import { AppError } from "@shared/errors/AppError";
+import { Logger } from "@shared/logger";
 
 const serviceAccountFilePath =
   process.env.NODE_ENV === "development"
@@ -26,16 +27,36 @@ export class GoogleCloudStorageGatway implements StorageGatway {
     this.storageBucket = getStorage().bucket();
   }
 
-  async save(file: File, data): Promise<string> {
-    const folder = file.type.split("/")[0] || "common";
-    const storageFileName = `${process.env.STORAGE_ENV || "dev"}/${folder}/${file.id}_${file.name}`;
+  async save(file: File, data): Promise<void> {
+    const storageFileName = this.generateFileName(file);
     const storageFile = this.storageBucket.file(storageFileName);
 
     try {
-      await storageFile.save(data, { contentType: file.type, public: true });
-      return storageFile.publicUrl();
-    } catch {
-      throw new AppError("Error in save file to storage");
+      await storageFile.save(data, { contentType: file.type, private: true });
+    } catch (err) {
+      Logger.warn(err);
+      throw new AppError("Error in save file to storage", 500);
     }
+  }
+
+  async generateDownloadUrl(file: File): Promise<string> {
+    const storageFileName = this.generateFileName(file);
+    const storageFile = this.storageBucket.file(storageFileName);
+
+    try {
+      const urlExpiresDate = Date.now() + 5 * 60 * 1000;
+      const [url] = await storageFile.getSignedUrl({ action: "read", expires: urlExpiresDate });
+      return url;
+    } catch (err) {
+      Logger.warn(err);
+      new AppError("Error on generate file url download!", 500);
+    }
+  }
+
+  private generateFileName(file: File): string {
+    const folder = file.type.split("/")[0] || "common";
+    const storageEnvFolder = process.env.STORAGE_ENV || "dev";
+    const storageFileName = `${storageEnvFolder}/${folder}/${file.id}_${file.name}`;
+    return storageFileName;
   }
 }
