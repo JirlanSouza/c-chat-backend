@@ -28,8 +28,8 @@ export class GoogleCloudStorageGatway implements StorageGatway {
   }
 
   async save(file: File, data): Promise<void> {
-    const storageFileName = this.generateFileName(file);
-    const storageFile = this.storageBucket.file(storageFileName);
+    const storageFilePath = this.generateFileStoragePath(file);
+    const storageFile = this.storageBucket.file(storageFilePath);
 
     try {
       await storageFile.save(data, { contentType: file.type, private: true });
@@ -40,8 +40,8 @@ export class GoogleCloudStorageGatway implements StorageGatway {
   }
 
   async generateDownloadUrl(file: File): Promise<string> {
-    const storageFileName = this.generateFileName(file);
-    const storageFile = this.storageBucket.file(storageFileName);
+    const storageFilePath = this.generateFileStoragePath(file);
+    const storageFile = this.storageBucket.file(storageFilePath);
 
     try {
       const urlExpiresDate = Date.now() + 5 * 60 * 1000;
@@ -53,10 +53,10 @@ export class GoogleCloudStorageGatway implements StorageGatway {
     }
   }
 
-  private generateFileName(file: File): string {
+  private generateFileStoragePath(file: File): string {
     const folder = file.type.split("/")[0] || "common";
     const storageEnvFolder = process.env.STORAGE_ENV || "dev";
-    const storageFileName = `${storageEnvFolder}/${folder}/${file.id}_${file.name}`;
-    return storageFileName;
+    const storageFilePath = `${storageEnvFolder}/${folder}/${file.id}_${file.name}`;
+    return storageFilePath;
   }
 }
