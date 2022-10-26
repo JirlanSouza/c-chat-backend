@@ -1,6 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 
-import { MessageFileRepository } from "@application/chat/repositories/MessageFileRepository";
+import {
+  MessageFileRepository,
+  MessageFileWithOwners,
+} from "@application/chat/repositories/MessageFileRepository";
 import { File } from "@domain/entities/File";
 import { AppError } from "@shared/errors/AppError";
 
@@ -47,6 +50,37 @@ export class PrismaMessageFileRepository implements MessageFileRepository {
       fileData.available
     );
     return file;
+  }
+
+  async findByIdWithOwners(id: string): Promise<MessageFileWithOwners> {
+    const fileData = await this.prisma.messageFile.findUnique({ where: { id } });
+
+    if (!fileData) {
+      throw new AppError("File does not exist!");
+    }
+
+    const file = File.from(
+      fileData.id,
+      fileData.name,
+      fileData.type,
+      fileData.size,
+      fileData.available
+    );
+
+    const messageData = await this.prisma.roomMessage.findUnique({
+      where: { id: fileData.messageId },
+      select: { roomId: true },
+    });
+
+    if (!messageData) {
+      throw new AppError("Message of file does not exist!");
+    }
+
+    return {
+      roomId: messageData.roomId,
+      messageId: fileData.messageId,
+      file,
+    };
   }
 
   async findRoomIdById(id: string): Promise<string> {

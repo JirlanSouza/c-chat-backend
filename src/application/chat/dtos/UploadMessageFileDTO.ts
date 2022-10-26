@@ -4,8 +4,12 @@ export interface UploadMessageFileInDto {
 }
 
 export interface UploadMessageFileOutDto {
-  id: string;
-  name: string;
-  type: string;
-  available: boolean;
+  roomId: string;
+  messageId: string;
+  file: {
+    id: string;
+    name: string;
+    type: string;
+    available: boolean;
+  };
 }
