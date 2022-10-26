@@ -81,7 +81,7 @@ export class SocketIoEventGatway implements EventEmitterGatway {
 
       const [socket] = await this.socket.in(connetionId).fetchSockets();
       socket.emit(APP_ERROR_EVENT, errorMessage);
-      Logger.error(err.message);
+      Logger.error(err);
     }
   }
 

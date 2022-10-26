@@ -10,21 +10,25 @@ export class UploadMessageFileUseCase {
   ) {}
 
   async execute(data: UploadMessageFileInDto): Promise<UploadMessageFileOutDto> {
-    const file = await this.messageFileRepository.findById(data.fileId);
+    const messageFileData = await this.messageFileRepository.findByIdWithOwners(data.fileId);
 
-    if (!file) {
+    if (!messageFileData) {
       throw new AppError("File does not exist!");
     }
 
-    await this.storageGatway.save(file, data.data);
-    file.updateAvailable(true);
-    await this.messageFileRepository.update(file);
+    await this.storageGatway.save(messageFileData.file, data.data);
+    messageFileData.file.updateAvailable(true);
+    await this.messageFileRepository.update(messageFileData.file);
 
     return {
-      id: file.id,
-      name: file.name,
-      type: file.type,
-      available: file.available,
+      roomId: messageFileData.roomId,
+      messageId: messageFileData.messageId,
+      file: {
+        id: messageFileData.file.id,
+        name: messageFileData.file.name,
+        type: messageFileData.file.type,
+        available: messageFileData.file.available,
+      },
     };
   }
 }
