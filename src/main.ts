@@ -1,6 +1,7 @@
 import "express-async-errors";
 import express from "express";
 import cors from "cors";
+import swaggerUI from "swagger-ui-express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { config } from "dotenv";
@@ -42,6 +43,7 @@ import { GoogleCloudStorageGatway } from "@infra/storage/GoogleCloudStorageGatwa
 import { UploadMessageFileEventHandler } from "@infra/webSocket/events/handlers/uploadMessageFileEvent";
 import { GenerateFileDownloadUrlUseCase } from "@application/chat/useCases/generateFileDownloadUrl";
 import { GenerateFileDownloadUrlController } from "@infra/http/controllers/chat/GenerateFileDownloadUrl";
+import swaggerFile from "./documentation/swagger.json";
 
 (async () => {
   config();
@@ -51,6 +53,7 @@ import { GenerateFileDownloadUrlController } from "@infra/http/controllers/chat/
   expressApp.use(express.json());
   expressApp.use(cors());
   expressApp.use(logger);
+  expressApp.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerFile));
   const httpServer = createServer(expressApp);
   const socketIo = new Server(httpServer, {
     cors: {
