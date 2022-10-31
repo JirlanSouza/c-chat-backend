@@ -3,9 +3,11 @@ import { RoomDto as RoomWithLastMessageDatetimeDto } from "@application/chat/dto
 import { ChatRepository } from "@application/chat/repositories/ChatRepository";
 import { ChatMessage } from "@domain/entities/ChatMessage";
 import { Room } from "@domain/entities/Room";
+import { RoomUser } from "@domain/entities/RoomUser";
 import { AppError } from "@shared/errors/AppError";
 
 export class ChatInMemoryRepository implements ChatRepository {
+  saveUserAtRoom: (roomId: string, roomUser: RoomUser) => Promise<RoomWithLastMessageDatetimeDto>;
   private readonly rooms: Room[] = [];
   private readonly messages: Array<{ roomId: string; message: ChatMessage }> = [];
 
@@ -48,11 +50,11 @@ export class ChatInMemoryRepository implements ChatRepository {
   }
 
   async findRoomByUserId(userId: string): Promise<RoomWithLastMessageDatetimeDto[]> {
-    const room = this.rooms.filter((room) =>
+    const rooms = this.rooms.filter((room) =>
       room.usersList.some((user) => user.userInfo.id === userId)
     );
 
-    return room.map((room) => {
+    return rooms.map((room) => {
       return {
         id: room.info.id,
         name: room.info.name,
@@ -60,5 +62,18 @@ export class ChatInMemoryRepository implements ChatRepository {
         lastMessageDatetime: "",
       };
     });
+  }
+
+  async findRoomIdByUserId(userId: string): Promise<string[]> {
+    const rooms = this.rooms.filter((room) =>
+      room.usersList.some((user) => user.userInfo.id === userId)
+    );
+
+    return rooms.map((room) => room.info.id);
+  }
+
+  async findRoomById(roomId: string): Promise<Room> {
+    const room = this.rooms.find((room) => room.info.id === roomId);
+    return room;
   }
 }
