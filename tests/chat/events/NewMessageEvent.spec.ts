@@ -2,22 +2,25 @@ import { createServer } from "node:http";
 import { Server } from "socket.io";
 import client, { Socket as ClientSocket } from "socket.io-client";
 
+import { UsersRepository } from "@application/accounts/repositories/UsersRepository";
+import { VerifyAuthenticationUseCase } from "@application/accounts/useCases/VerifyAuthentication";
 import { GetUserRoomIdListQuery } from "@application/chat/queries/GetUserRoomIdList";
 import { ChatRepository } from "@application/chat/repositories/ChatRepository";
+import { MessageFileRepository } from "@application/chat/repositories/MessageFileRepository";
 import { NewMessageUseCase } from "@application/chat/useCases/NewMessage";
+import { Db } from "@infra/database/conection";
 import { PrismaChatRepository } from "@infra/database/repositories/chat/PrismaChatRepository";
+import { PrismaMessageFileRepository } from "@infra/database/repositories/chat/PrismaMessageFileRepository";
+import { PrismaUsersrepository } from "@infra/database/repositories/users/PrismaUsersRepository";
 import { SocketIoEventGatway } from "@infra/webSocket/events/eventGatway";
 import { NewMessageEventHandler } from "@infra/webSocket/events/handlers/newMessageEvent";
-import { UsersRepository } from "@application/accounts/repositories/UsersRepository";
-import { PrismaUsersrepository } from "@infra/database/repositories/users/PrismaUsersRepository";
-import { AddressInfo } from "node:net";
-import { VerifyAuthenticationUseCase } from "@application/accounts/useCases/VerifyAuthentication";
 import { WebSocketEnsureAuthenticated } from "@infra/webSocket/middlewares/ensureAuthenticated";
-import { Db } from "@infra/database/conection";
+import { AddressInfo } from "node:net";
 
 describe("NewMessageEvent", () => {
   let chatRepository: ChatRepository;
   let usersRepository: UsersRepository;
+  let messageFileRepository: MessageFileRepository;
   let serverSocket: Server;
   let clientSocket: ClientSocket;
 
@@ -26,19 +29,30 @@ describe("NewMessageEvent", () => {
   beforeEach((done) => {
     chatRepository = new PrismaChatRepository();
     usersRepository = new PrismaUsersrepository();
+    messageFileRepository = new PrismaMessageFileRepository();
 
     const httpServer = createServer();
     serverSocket = new Server(httpServer);
-    const verifyAuthentication = new VerifyAuthenticationUseCase(usersRepository);
-    const webSocketEnsureAuthenticated = new WebSocketEnsureAuthenticated(verifyAuthentication);
-    serverSocket.use(webSocketEnsureAuthenticated.handler.bind(webSocketEnsureAuthenticated));
+    const verifyAuthentication = new VerifyAuthenticationUseCase(
+      usersRepository
+    );
+    const webSocketEnsureAuthenticated = new WebSocketEnsureAuthenticated(
+      verifyAuthentication
+    );
+    serverSocket.use(
+      webSocketEnsureAuthenticated.handler.bind(webSocketEnsureAuthenticated)
+    );
     const getUserRoomIdListQuery = new GetUserRoomIdListQuery(chatRepository);
     const socketIoEventEmitterGatway = new SocketIoEventGatway(
       serverSocket,
       getUserRoomIdListQuery
     );
 
-    const newMessageUseCase = new NewMessageUseCase(chatRepository, usersRepository);
+    const newMessageUseCase = new NewMessageUseCase(
+      chatRepository,
+      messageFileRepository,
+      usersRepository
+    );
     new NewMessageEventHandler(socketIoEventEmitterGatway, newMessageUseCase);
 
     socketIoEventEmitterGatway.onEvents();

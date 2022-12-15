@@ -1,4 +1,7 @@
-import { RoomDto, MessageDto } from "@application/chat/dtos/GetLastRoomMessagesDTO";
+import {
+  MessageDto,
+  RoomDto,
+} from "@application/chat/dtos/GetLastRoomMessagesDTO";
 import { RoomDto as RoomWithLastMessageDatetimeDto } from "@application/chat/dtos/GetRoomListDTO";
 import { ChatRepository } from "@application/chat/repositories/ChatRepository";
 import { ChatMessage } from "@domain/entities/ChatMessage";
@@ -7,9 +10,9 @@ import { RoomUser } from "@domain/entities/RoomUser";
 import { AppError } from "@shared/errors/AppError";
 
 export class ChatInMemoryRepository implements ChatRepository {
-  saveUserAtRoom: (roomId: string, roomUser: RoomUser) => Promise<RoomWithLastMessageDatetimeDto>;
   private readonly rooms: Room[] = [];
-  private readonly messages: Array<{ roomId: string; message: ChatMessage }> = [];
+  private readonly messages: Array<{ roomId: string; message: ChatMessage }> =
+    [];
 
   async existsRoomById(id: string): Promise<boolean> {
     return this.rooms.some((room) => room.info.id === id);
@@ -22,6 +25,11 @@ export class ChatInMemoryRepository implements ChatRepository {
   async saveRoom(room: Room): Promise<void> {
     this.rooms.push(room);
   }
+
+  async saveUserAtRoom(
+    roomId: string,
+    roomUser: RoomUser
+  ): Promise<RoomWithLastMessageDatetimeDto> {}
 
   async getRoomByName(name: string): Promise<RoomDto> {
     const room = this.rooms.find((room) => room.info.name === name);
@@ -36,8 +44,14 @@ export class ChatInMemoryRepository implements ChatRepository {
     };
   }
 
-  async getMessages(roomId: string, dateEnd: number, maxMessage: number): Promise<MessageDto[]> {
-    const messages = this.messages.filter((message) => message.roomId === roomId);
+  async getMessages(
+    roomId: string,
+    dateEnd: number,
+    maxMessage: number
+  ): Promise<MessageDto[]> {
+    const messages = this.messages.filter(
+      (message) => message.roomId === roomId
+    );
 
     return messages.map((message) => {
       return {
@@ -49,7 +63,9 @@ export class ChatInMemoryRepository implements ChatRepository {
     });
   }
 
-  async findRoomByUserId(userId: string): Promise<RoomWithLastMessageDatetimeDto[]> {
+  async findRoomByUserId(
+    userId: string
+  ): Promise<RoomWithLastMessageDatetimeDto[]> {
     const rooms = this.rooms.filter((room) =>
       room.usersList.some((user) => user.userInfo.id === userId)
     );
