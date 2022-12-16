@@ -1,26 +1,38 @@
-import { Request, Response } from "../../types";
-import { AuthenticateUserUseCase } from "@application/accounts/useCases/AuthenticateUser";
-import { IHttpServer } from "@infra/http/server/IHttpServer";
+import { GetUserInfoQuery } from '@application/accounts/queries/GetuserInfo';
+import { AuthenticateUserUseCase } from '@application/accounts/useCases/AuthenticateUser';
+import { RegisterUserUseCase } from '@application/accounts/useCases/RegisterUser';
+import { Body, Controller, Get, Post, Request } from '@nestjs/common';
+import { AuthenticateUserDto } from './Dtos/AutehticateUserDto';
+import { RegisterUserDto } from './Dtos/RegisterUserDto';
 
-export class AuthenticateUserController {
+@Controller('auth')
+export class AuthController {
   constructor(
-    httpServer: IHttpServer,
-    private readonly authenticateUserUseCase: AuthenticateUserUseCase
-  ) {
-    httpServer.on("post", "/auth", this.handle.bind(this));
+    private readonly registerUserUseCase: RegisterUserUseCase,
+    private readonly authenticateUserUseCase: AuthenticateUserUseCase,
+    private readonly getUserInfoQuery: GetUserInfoQuery,
+  ) {}
+
+  @Post()
+  async registerUser(@Body() body: RegisterUserDto) {
+    await this.registerUserUseCase.execute({
+      ...body,
+    });
   }
 
-  private async handle(request: Request): Promise<Response> {
-    const { email, password } = request.body;
-
+  @Post()
+  async authenticateUser(@Body() body: AuthenticateUserDto) {
     const authenticationData = await this.authenticateUserUseCase.execute({
-      email,
-      password,
+      ...body,
     });
 
-    return {
-      status: 200,
-      body: authenticationData,
-    };
+    return authenticationData;
+  }
+
+  @Get('profile')
+  async userProfile(@Request() request) {
+    const userId = request.user.id;
+    const getUserInfoResult = await this.getUserInfoQuery.execute(userId);
+    return getUserInfoResult;
   }
 }
