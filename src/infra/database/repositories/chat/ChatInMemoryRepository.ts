@@ -1,13 +1,13 @@
 import {
   MessageDto,
   RoomDto,
-} from "@application/chat/dtos/GetLastRoomMessagesDTO";
-import { RoomDto as RoomWithLastMessageDatetimeDto } from "@application/chat/dtos/GetRoomListDTO";
-import { ChatRepository } from "@application/chat/repositories/ChatRepository";
-import { ChatMessage } from "@domain/entities/ChatMessage";
-import { Room } from "@domain/entities/Room";
-import { RoomUser } from "@domain/entities/RoomUser";
-import { AppError } from "@shared/errors/AppError";
+} from '@application/chat/dtos/GetLastRoomMessagesDTO';
+import { RoomDto as RoomWithLastMessageDatetimeDto } from '@application/chat/dtos/GetRoomListDTO';
+import { ChatRepository } from '@application/chat/repositories/ChatRepository';
+import { ChatMessage } from '@domain/entities/ChatMessage';
+import { Room } from '@domain/entities/Room';
+import { RoomUser } from '@domain/entities/RoomUser';
+import { AppError } from '@shared/errors/AppError';
 
 export class ChatInMemoryRepository implements ChatRepository {
   private readonly rooms: Room[] = [];
@@ -28,14 +28,16 @@ export class ChatInMemoryRepository implements ChatRepository {
 
   async saveUserAtRoom(
     roomId: string,
-    roomUser: RoomUser
-  ): Promise<RoomWithLastMessageDatetimeDto> {}
+    roomUser: RoomUser,
+  ): Promise<RoomWithLastMessageDatetimeDto> {
+    return null;
+  }
 
   async getRoomByName(name: string): Promise<RoomDto> {
     const room = this.rooms.find((room) => room.info.name === name);
 
     if (!room) {
-      throw new AppError("Room not found!");
+      throw new AppError('Room not found!');
     }
 
     return {
@@ -47,10 +49,10 @@ export class ChatInMemoryRepository implements ChatRepository {
   async getMessages(
     roomId: string,
     dateEnd: number,
-    maxMessage: number
+    maxMessage: number,
   ): Promise<MessageDto[]> {
     const messages = this.messages.filter(
-      (message) => message.roomId === roomId
+      (message) => message.roomId === roomId,
     );
 
     return messages.map((message) => {
@@ -58,16 +60,16 @@ export class ChatInMemoryRepository implements ChatRepository {
         ...message.message,
         roomId,
         user: {} as any,
-        created: message.message.created.toLocaleString("pt-br"),
+        created: message.message.created.toLocaleString('pt-br'),
       };
     });
   }
 
   async findRoomByUserId(
-    userId: string
+    userId: string,
   ): Promise<RoomWithLastMessageDatetimeDto[]> {
     const rooms = this.rooms.filter((room) =>
-      room.usersList.some((user) => user.userInfo.id === userId)
+      room.usersList.some((user) => user.userInfo.id === userId),
     );
 
     return rooms.map((room) => {
@@ -75,14 +77,14 @@ export class ChatInMemoryRepository implements ChatRepository {
         id: room.info.id,
         name: room.info.name,
         avatarUrl: room.info.avatarUrl,
-        lastMessageDatetime: "",
+        lastMessageDatetime: '',
       };
     });
   }
 
   async findRoomIdByUserId(userId: string): Promise<string[]> {
     const rooms = this.rooms.filter((room) =>
-      room.usersList.some((user) => user.userInfo.id === userId)
+      room.usersList.some((user) => user.userInfo.id === userId),
     );
 
     return rooms.map((room) => room.info.id);
